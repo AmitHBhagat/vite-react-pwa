@@ -1,0 +1,76 @@
+/* ===== Helper classes ===== */
+.section-mb {
+	margin-bottom: 1rem;
+}
+
+/* ===== Width classes ===== */
+.wd-100 {
+	width: 100%;
+}
+
+/* ===== Margin classes ===== */
+.mr-t-1 {
+	margin-top: 1rem;
+}
+
+.mr-l-1 {
+	margin-left: 1rem;
+}
+
+.mb-b-0 {
+	margin-bottom: 0;
+}
+
+.mr-b-1 {
+	margin-bottom: 1rem;
+}
+
+/* ===== Padding classes ===== */
+.pd-b-0 {
+	padding-bottom: 0;
+}
+
+/* ===== Text classes ===== */
+.txt-rgt {
+	text-align: right;
+}
+
+.txt-cnt {
+	text-align: center;
+}
+
+/* ===== structure classes ===== */
+.x-center {
+	display: flex;
+	justify-content: center;
+}
+
+.y-center {
+	display: flex;
+	align-items: center;
+}
+
+.xy-center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.fontSize20 {
+	font-size: 1.25rem
+}
+
+.txt-justify {
+	text-align: justify;
+}
+
+/* icons styles */
+
+/* Text ellipses */
+.two-line-ellipsis {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

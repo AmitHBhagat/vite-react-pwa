@@ -1,0 +1,10 @@
+.addImageContainer .rs-btn-icon.rs-btn {
+	padding: 20px !important;
+
+}
+
+.society-image .preview {
+	height: 25%;
+	width: 25%;
+	object-fit: fill;
+}

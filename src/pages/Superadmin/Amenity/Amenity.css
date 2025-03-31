@@ -1,0 +1,23 @@
+.container-amenity {
+	margin: 0.8rem 0;
+}
+
+.wrapper-amenity {
+	padding: 1.25rem;
+	background-color: #fff;
+	border-radius: 0.625rem;
+}
+
+.active-check {
+	margin-right: 0.625rem;
+}
+
+.search-container {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 0.5rem;
+}
+
+/* .lbl {
+	font-weight: bold;
+} */

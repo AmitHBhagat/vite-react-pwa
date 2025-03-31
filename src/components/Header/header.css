@@ -1,0 +1,163 @@
+body.body-protected .thm-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: white;
+	padding: 0 1.5rem;
+	min-height: 5rem;
+}
+
+body.body-protected .thm-header .rs-stack {
+	display: flex;
+	align-items: center;
+}
+
+body.body-protected .thm-hdr-title {
+	font-size: 1.3rem;
+	font-weight: 600;
+	color: var(--clr-primary);
+}
+
+body.body-protected .thm-hdr-icons {
+	display: flex;
+	gap: 1.5rem;
+	align-items: center;
+}
+
+body.body-protected .rs-btn-icon.notif-icon {
+	padding: 0.9rem;
+}
+
+body.body-protected .rs-btn-icon.notif-icon .rs-badge-content {
+	font-size: 0.6rem;
+}
+
+/* Popover styling */
+body.body-protected .thm-popover.rs-popover[class*=placement-bottom] {
+	margin-top: 0;
+}
+
+body.body-protected .thm-popover {
+	padding: 0.5rem 1rem;
+}
+
+body.body-protected .thm-popover .dividr-x {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+body.body-protected .thm-popover .popver-menu {
+	list-style: none;
+	font-size: 1rem;
+}
+
+body.body-protected .thm-popover .popver-menu .pm-title {
+	color: var(--clr-grey-02);
+	font-weight: 600;
+}
+
+body.body-protected .thm-popover .popver-menu .pm-title .pmt-subtl {
+	font-weight: normal;
+	font-style: italic;
+}
+
+body.body-protected .thm-popover .popver-menu .pm-item:not(:last-of-type) {
+	margin-bottom: 0.5rem;
+}
+
+body.body-protected .thm-popover .popver-menu .pm-item > a {
+	color: var(--clr-grey-01);
+}
+
+body.body-protected .thm-popover .popver-menu .pm-item > a:hover {
+	font-weight: 600;
+}
+
+body.body-protected .rs-popover.notification-wrapper {
+	padding: 1rem 0;
+}
+
+body.body-protected .rs-popover.notification-wrapper .rs-list-item {
+	padding: 0.5rem 1rem 0.5rem 1.5rem;
+}
+
+body.body-protected .rs-popover.notification-wrapper .rs-heading {
+	color: var(--clr-primary);
+	padding: 0 1rem 0 1.5rem;
+}
+
+body.body-protected .rs-popover.notification-wrapper .notf-row {
+	position: relative;
+}
+
+body.body-protected .rs-popover.notification-wrapper .rs-list-item .rs-badge {
+	position: absolute;
+	top: 0.3rem;
+	left: -1rem;
+}
+
+body.body-protected .rs-popover.notification-wrapper .notif-title:hover {
+	color: var(--clr-primary);
+}
+
+body.body-protected .rs-popover.notification-wrapper .notf-subttl {
+	display: flex;
+	justify-content: space-between;
+}
+
+body.body-protected .rs-popover.notification-wrapper .notf-subttl span {
+	font-size: 0.7rem;
+	color: var(--clr-grey-02);
+}
+
+body.body-protected .rs-popover.notification-wrapper .notf-subttl span:nth-child(2) {
+	font-style: italic;
+}
+
+body.body-protected .rs-modal-backdrop {
+	background-color: var(--clr-grey-06);
+	opacity: 0.9;
+}
+
+body.body-protected .flt-wrap {
+	padding: 0.5rem;
+}
+
+body.body-protected .flt-wrap .flt-inner {
+	border: 1px solid var(--clr-grey-04);
+	border-radius: 5px;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	background-color: var(--clr-grey-06);
+}
+
+body.body-protected .flt-wrap .flt-inner:hover {
+	background-color: var(--clr-secondary);
+	color: white;
+}
+
+body.body-protected .flt-wrap .fw-title {
+	font-family: 'Gilroy-Medium';
+}
+
+body.body-protected .flt-wrap .fw-subtl {
+	font-size: 0.8rem;
+}
+
+body.body-protected .thm-header .rs-icon-button {
+	margin-right: 0.938rem;
+}
+
+body.body-protected .thm-header .rs-icon-button .rs-badge {
+	top: -0.313rem;
+	right: -0.313rem;
+}
+
+body.body-protected .thm-header .rs-avatar {
+	cursor: pointer;
+	transition: transform 0.3s ease;
+}
+
+body.body-protected .thm-header .rs-avatar:hover {
+	transform: scale(1.1);
+}

@@ -1,0 +1,132 @@
+.profile-container {
+	display: flex;
+	background-color: var(--clr-grey-06);
+	justify-content: center;
+}
+
+.profile-container .profile {
+	margin: 3.125rem 0;
+}
+
+.emaill {
+	width: 300px;
+	/* Set a width to see the effect */
+	word-wrap: break-word;
+	/* For older browsers */
+	overflow-wrap: break-word;
+}
+
+.profile-panel {
+	background: #fff;
+	padding: 1.875rem;
+	border-radius: 0.75rem;
+	box-shadow: 0 4px 0.938rem rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+	margin-bottom: 1.25rem;
+}
+
+.profile-panel .image-col {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.profile-image-large {
+	width: 12.5rem;
+	height: 12.5rem;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 3px solid var(--clr-primary);
+}
+
+.profile-name {
+	font-size: 1.8rem;
+	font-weight: 600;
+	margin-bottom: 0.313rem;
+}
+
+.profile-email {
+	color: #777;
+	font-size: 1rem;
+	margin-bottom: 1.25rem;
+}
+
+.section-header {
+	font-size: 1.4rem;
+	margin-top: 1.875rem;
+	margin-bottom: 1.25rem;
+	border-bottom: 2px solid #ddd;
+	padding-bottom: 0.625rem;
+}
+
+.address-item {
+	background-color: #f9f9f9;
+	padding: 0.938rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1.25rem;
+	box-shadow: 0 2px 0.625rem rgba(0, 0, 0, 0.05);
+}
+
+.profile-edit-btn {
+	margin-top: 1.25rem;
+	font-size: 1rem;
+	padding: 0.625rem 1.875rem;
+}
+
+/* Edit  */
+.profile-container .profile {
+	margin: 3.125rem auto;
+}
+
+.profile-image {
+	object-fit: cover;
+	width: 12.5rem;
+	height: 12.5rem;
+	object-fit: cover;
+	border-radius: 50%;
+	margin: 1.875rem;
+}
+
+.address-btn {
+	margin-top: 1.536rem;
+}
+
+.basic-form .rs-input-group {
+	width: 25rem !important;
+}
+
+.phone-email {
+	margin: 0.625rem 0;
+}
+
+.ml-5 {
+	margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+	.profile-s-flex {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.emaill {
+		width: 200px;
+		/* Set a width to see the effect */
+		word-wrap: break-word;
+		/* For older browsers */
+		overflow-wrap: break-word;
+	}
+}
+
+@media (max-width: 578px) {
+	.emaill {
+		width: 150px;
+		/* Set a width to see the effect */
+		word-wrap: break-word;
+		/* For older browsers */
+		overflow-wrap: break-word;
+	}
+}

@@ -1,0 +1,49 @@
+.dashboard-container .stats-panel {
+	background-color: white;
+	margin-bottom: 1rem;
+}
+
+.dashboard-container .stats-content .stat-title {
+	font-size: 1rem;
+	display: flex;
+	justify-content: space-between;
+}
+
+
+.dashboard-container .inline-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+}
+
+
+.dashboard-container .rs-carousel {
+	height: 300px !important;
+
+}
+
+.dashboard-container .rs-carousel-slider-after,
+.rs-carousel-slider-item {
+	background-color: white !important;
+}
+
+.dashboard-container .para {
+	text-align: center;
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+/* .dashboard-container .paraDate {
+	text-align: center;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+} */
+
+.dashboard-container .tbl-theme .vis-image {
+	width: 30px;
+	height: 30px;
+	object-fit: cover;
+	object-position: center;
+	border: 1px solid rgba(218, 215, 215, 0.543);
+}

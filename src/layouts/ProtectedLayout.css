@@ -1,0 +1,307 @@
+body.body-protected .app-container {
+	height: 100vh;
+}
+
+body.body-protected .content-container {
+	padding-left: 16.25rem;
+	transition: padding 0.5s;
+}
+
+body.body-protected .content-container.container-full {
+	padding-left: 3.75rem;
+}
+
+/* Sidebar Styles */
+body.body-protected .rs-sidebar {
+	position: fixed;
+	height: 100vh;
+	z-index: 3;
+	background-color: white;
+}
+
+body.body-protected .rs-sidenav {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	transition: none;
+	border-top: 1px solid var(--clr-grey-05);
+	overflow-y: auto;
+}
+
+body.body-protected .rs-sidenav.rs-sidenav-collapse-out .rs-sidenav-item {
+	font-size: 0;
+}
+
+body.body-protected .rs-sidenav-body {
+	flex: 1;
+}
+
+body.body-protected .rs-sidenav-header {
+	height: 5rem;
+}
+
+body.body-protected .sidenav-brand {
+	height: 100%;
+	padding: 0.5rem;
+}
+
+body.body-protected .sidenav-brand .brnd-img {
+	height: 100%;
+}
+
+body.body-protected .sidenav-brand .brnd-img img {
+	max-height: 100%;
+}
+
+body.body-protected .sidenav-brand .brnd-text {
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin-left: 0.5rem;
+}
+
+body.body-protected .sidenav-brand .brnd-text span:nth-child(1) {
+	color: var(--clr-primary);
+}
+
+body.body-protected .sidenav-brand .brnd-text span:nth-child(2) {
+	color: var(--clr-secondary);
+}
+
+body.body-protected .rs-sidenav-nav .rs-sidenav-item,
+body.body-protected .rs-sidenav-nav .rs-dropdown-toggle {
+	font-size: 1rem;
+	color: var(--clr-grey-01);
+	border-left: 0.3rem solid transparent;
+	padding-left: 3rem;
+	transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.body-protected .rs-sidenav-nav .rs-sidenav-item.active {
+	border-left-color: var(--clr-primary-dark);
+}
+
+body.body-protected .rs-sidenav-nav > .rs-sidenav-item > .rs-icon:not(.rs-dropdown-toggle-caret),
+body.body-protected .rs-sidenav-nav > .rs-dropdown .rs-dropdown-toggle > .rs-icon:not(.rs-dropdown-toggle-caret) {
+	font-size: 1.25rem;
+	margin-right: 0.5rem;
+}
+
+body.body-protected .rs-sidenav-nav > .rs-dropdown .rs-dropdown-item {
+	font-size: 1rem;
+	color: var(--clr-grey-01);
+	padding-left: 3.2rem;
+}
+
+body.body-protected .rs-sidenav-nav > .rs-dropdown .rs-dropdown-item.active {
+	color: var(--clr-primary);
+	font-family: "Gilroy-Medium";
+}
+
+body.body-protected .nav-toggle {
+	border-top: 1px solid var(--clr-grey-05);
+}
+
+/* Layout styles */
+body.body-protected .rs-content {
+	padding: 1rem;
+	background-color: var(--clr-grey-06);
+	min-height: calc(100vh - 5rem);
+}
+
+body.body-protected .thm-panel {
+	background-color: white;
+	padding: 1rem;
+	border-radius: 6px;
+}
+
+body.body-protected .rs-form-group {
+	margin-bottom: 1.5rem;
+}
+
+/* Top Bar styles */
+body.body-protected .topfeaturebar {
+	margin-bottom: 1rem;
+}
+
+/* Content styles */
+body.body-protected .inner-container {
+	padding: 1.25rem;
+	background-color: white;
+	border-radius: 0.625rem;
+}
+
+body.body-protected .flxgrid-theme {
+	width: 100%;
+	background-color: white;
+}
+
+body.body-protected .affixed-top .flxgrid-theme {
+	padding-top: 1.25rem;
+}
+
+body.body-protected .content-title {
+	font-size: 1.2rem;
+	color: var(--clr-primary);
+	font-weight: 600;
+	margin-bottom: 0.6rem;
+}
+
+/* Form styles */
+body.body-protected .rs-form-control-label {
+	font-size: 0.9rem;
+	color: var(--clr-grey-03);
+}
+
+/* Details styles */
+body.body-protected .details-grp {
+	margin-bottom: 1rem;
+}
+
+body.body-protected .details-grp .lbl {
+	color: var(--clr-grey-03);
+	font-size: 0.9rem;
+	margin-bottom: 0.3rem;
+}
+
+body.body-protected .details-grp .val .affirm {
+	color: var(--clr-affirm);
+}
+
+body.body-protected .details-grp .val .negate {
+	color: var(--clr-negate);
+}
+
+/* Modal styles */
+body.body-protected .rs-modal.thm-modal .rs-modal-title {
+	font-size: 1.2rem;
+	font-family: Gilroy-Medium;
+}
+
+body.body-protected .rs-modal.thm-modal .rs-modal-body .details-grp .polling-option {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+}
+
+/* Table styles */
+body.body-protected .tbl-theme .rs-table-cell-header .rs-table-cell-content {
+	color: var(--clr-grey-03);
+	font-size: 0.9rem;
+}
+
+body.body-protected .tbl-theme .col-status {
+	padding: 0.2rem 0.5rem;
+	border: 1px solid;
+	border-radius: 1.5rem;
+}
+
+body.body-protected .tbl-theme .col-status.query-Open {
+	color: var(--clr-primary);
+	border-color: var(--clr-primary);
+}
+
+body.body-protected .tbl-theme .col-status.query-Pending {
+	color: var(--clr-orange);
+	border-color: var(--clr-orange);
+}
+
+body.body-protected .tbl-theme .col-status.query-Closed {
+	color: var(--clr-affirm);
+	border-color: var(--clr-affirm);
+}
+
+body.body-protected .tbl-compact .rs-table-cell-content {
+	font-size: 0.9rem;
+	padding: 0.2rem 0.6rem;
+	display: inline-flex;
+	align-items: center;
+}
+
+body.body-protected .tbl-compact .col-action .rs-table-cell-content {
+	padding: 0;
+}
+
+body.body-protected .tbl-theme .action-icons {
+	display: flex;
+	gap: 1rem;
+}
+
+body.body-protected .rs-col .rs-form-group .poll-options {
+	margin: 1rem 0;
+}
+
+body.body-protected .tbl-compact .col-action .rs-table-cell-content .rs-btn-icon.rs-btn > .rs-icon {
+	font-size: 0.8rem;
+}
+
+body.body-protected .tbl-compact .rs-btn-icon.rs-btn {
+	padding: 0.5rem;
+}
+
+body.body-protected .tbl-compact .rs-checkbox-checker {
+	line-height: 1;
+	min-height: 1rem;
+	padding-bottom: 0;
+	padding-left: 0;
+	padding-top: 0;
+	position: relative;
+}
+
+body.body-protected .tbl-compact .rs-checkbox-control {
+	display: inline-block;
+	height: 1rem;
+	width: 1rem;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+body.body-protected .tbl-compact .rs-checkbox-control [type="checkbox"] {
+	min-height: 1rem;
+	min-width: 1rem;
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1;
+}
+
+body.body-protected .details-grp .col-status {
+	padding: 0.2rem 0.5rem;
+	border: 1px solid;
+	border-radius: 1.5rem;
+	width: max-content;
+}
+
+body.body-protected .details-grp .col-status.query-Open {
+	color: var(--clr-primary);
+	border-color: var(--clr-primary);
+}
+
+body.body-protected .details-grp .col-status.query-Pending {
+	color: var(--clr-orange);
+	border-color: var(--clr-orange);
+}
+
+body.body-protected .details-grp .col-status.query-Closed {
+	color: var(--clr-affirm);
+	border-color: var(--clr-affirm);
+}
+
+body.body-protected .ellipsis-text {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: block;
+}
+
+body.body-protected .tbl-theme .visitor-image {
+	width: 45px;
+	height: 45px;
+	object-fit: cover;
+	object-position: center;
+	border: 1px solid rgba(218, 215, 215, 0.543);
+}

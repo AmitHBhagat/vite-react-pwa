@@ -1,0 +1,6 @@
+.billing-charges .checkbox-group {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	flex-wrap: wrap;
+}

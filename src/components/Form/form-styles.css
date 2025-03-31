@@ -1,0 +1,10 @@
+.error-msg-wrap {
+	position: absolute;
+	font-size: 0.8rem;
+	color: var(--clr-negate);
+}
+
+.page-errmsg-wrap {
+	font-size: 0.9rem;
+	color: var(--clr-negate);
+}

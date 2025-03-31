@@ -1,0 +1,271 @@
+.homepage .header {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 9rem;
+	font-size: 1.2rem;
+}
+
+.homepage .nav-box {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 85%;
+	background-color: white;
+	border-radius: 4rem;
+	height: 6rem;
+	padding: 1rem 2rem 1rem 2rem;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.homepage .logo {
+	height: 3em;
+	/* padding: 1.5em; */
+	padding-right: 0.5rem;
+	will-change: filter;
+	transition: filter 300ms;
+}
+
+.homepage .nav-list {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 40rem;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	font-weight: bold;
+}
+
+.homepage .button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 3rem;
+	padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+	color: white;
+	background-color: var(--clr-primary);
+	font-weight: bold;
+
+}
+
+.homepage .button2 {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 3rem;
+	padding: 1rem 2rem 1rem 2rem;
+	color: white;
+	background-color: var(--clr-primary);
+	font-weight: bold;
+	font-size: 1.3rem;
+}
+
+.homepage .transparent-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 3rem;
+	padding: 1rem 2rem 1rem 2rem;
+	color: var(--clr-primary);
+	background-color: white;
+	font-weight: bold;
+	font-size: 1.3rem;
+}
+
+.homepage .home-first-view {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	margin-top: 6rem;
+	flex-wrap: wrap;
+
+}
+
+.homepage .home-first-box {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: start;
+	height: 25rem;
+}
+
+.homepage .button-look {
+	font-size: 1.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: fit-content;
+	gap: 0.5rem;
+	background-color: var(--clr-grey-04);
+	border-radius: 2rem;
+	padding: 0.5rem 1rem;
+}
+
+.homepage h1 {
+	margin-bottom: 2rem;
+	letter-spacing: 0.2rem;
+	font-weight: bolder;
+}
+
+.homepage p {
+	font-size: 1.4rem;
+}
+
+.homepage p.secondary {
+	font-size: 1.3rem;
+	font-weight: 600;
+}
+
+.homepage h2 {
+	font-size: 1.5rem;
+	font-weight: bolder;
+	color: var(--clr-primary);
+}
+
+.homepage h3 {
+	font-size: 1.5rem;
+	font-weight: bolder;
+
+}
+
+.homepage ul {
+	list-style: none;
+
+}
+
+.homepage .icon {
+	font-size: 2rem;
+	color: var(--clr-primary);
+}
+
+.homepage .first-view-image-box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.homepage .first-view-image-box img {
+	width: 70%;
+}
+
+@media (max-width: 768px) {
+	.homepage .home-first-view {
+		gap: 0;
+	}
+
+	.homepage .home-first-box {
+		align-items: center;
+		z-index: 50;
+		margin-bottom: 2rem;
+		height: 35rem;
+		text-align: center;
+		justify-content: space-between;
+	}
+
+	.homepage h1 {
+		font-size: 3rem;
+		letter-spacing: normal;
+		margin-bottom: 0;
+	}
+
+	.homepage .nav-list {
+		display: none;
+	}
+
+
+}
+
+.homepage .stats {
+	padding: 1rem 2rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 2rem;
+}
+
+.homepage .stat-icon {
+	font-size: 4rem;
+	margin-right: 1rem;
+}
+
+.homepage .stat-box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4rem;
+	text-align: center;
+}
+
+.homepage .four-stats-boxes {
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	border-radius: 3rem;
+	width: 90%;
+	margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+	.homepage .stat-box {
+		padding: 2rem;
+		justify-content: start;
+		gap: 2rem;
+	}
+
+	.homepage .stat-icon {
+		font-size: 3rem;
+		margin-right: 0.5rem;
+	}
+
+	.homepage .four-stats-boxes {
+		width: 100%;
+		box-shadow: none;
+		font-size: 1rem;
+	}
+
+
+
+	.homepage .stat-heading {
+		font-size: 2rem;
+	}
+}
+
+/* .homepage .stat-text {
+	width: 10rem;
+} */
+
+.homepage .about-list {
+	display: flex;
+	justify-content: space-between;
+	gap: 2rem;
+	font-size: larger;
+}
+
+.homepage .about-list li {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem;
+}
+
+.homepage .avatar-image {
+	width: 3rem;
+	border-radius: 50%;
+	border: solid 1px
+}
+
+.homepage .about-info {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 2rem;
+}
+
+.homepage .about-avatar {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+}

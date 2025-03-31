@@ -1,0 +1,8 @@
+.header-public .rs-navbar-brand {
+	padding: 0;
+	display: flex;
+}
+
+.header-public .brand-logo-img {
+	width: 3rem;
+}

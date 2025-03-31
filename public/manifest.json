@@ -1,0 +1,31 @@
+{
+	"name": "Society Care",
+	"short_name": "SocietyCare",
+	"description": "Society Care application to manage society",
+	"theme_color": "#233c8e",
+	"background_color": "#ffffff",
+	"display": "standalone",
+	"scope": "/",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "/fevicon.png",
+			"sizes": "200x200",
+			"type": "image/png"
+		}
+	],
+	"screenshots": [
+		{
+			"src": "/screenshots/desktop-preview.png",
+			"sizes": "1280x720",
+			"type": "image/png",
+			"form_factor": "wide"
+		},
+		{
+			"src": "/screenshots/mobile-preview.png",
+			"sizes": "400x800",
+			"type": "image/png",
+			"form_factor": "narrow"
+		}
+	]
+}

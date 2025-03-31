@@ -1,0 +1,8 @@
+.user-societyinfo .theme-slider {
+	height: 30vw !important;
+}
+
+.user-societyinfo .no-images {
+	text-align: center;
+	color: var(--clr-grey-03);
+}

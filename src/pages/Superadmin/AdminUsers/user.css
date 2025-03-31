@@ -1,0 +1,11 @@
+@media (max-width: 768px) {
+	.pagination {
+		padding: 20px 0;
+	}
+
+	.pagination .rs-pagination-group {
+		display: flex;
+		flex-direction: column;
+		justify-content: left;
+	}
+}
