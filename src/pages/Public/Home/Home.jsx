@@ -5,7 +5,7 @@ import { RiSettings3Fill } from "react-icons/ri";
 import image1 from "../../../assets/images/illustration-1.webp";
 import FeatureSection from "./FeatureSection";
 import PublicHeader from "../../../components/PublicHeader/Header";
-import MobileSection from "./mobileSection";
+import MobileSection from "./MobileSection";
 import Footer from "./Footer";
 import AboutSection from "./AboutSection";
 import AchievementSection from "./AchievementSection";
