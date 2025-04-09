@@ -149,7 +149,9 @@ function AddMemberUser({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="name">
-                <Form.ControlLabel>User Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  User Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="name"
                   placeholder="Enter a Name"
@@ -164,7 +166,9 @@ function AddMemberUser({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="email">
-                <Form.ControlLabel>Email</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Email *
+                </Form.ControlLabel>
                 <Form.Control
                   name="email"
                   placeholder="Enter a email"
@@ -181,7 +185,9 @@ function AddMemberUser({ pageTitle }) {
             {!userId && (
               <Col xs={24} md={12} lg={8} xl={6}>
                 <Form.Group controlId="password">
-                  <Form.ControlLabel>Password</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Password *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="password"
                     placeholder="Enter user Password"
@@ -198,7 +204,9 @@ function AddMemberUser({ pageTitle }) {
 
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="mobile">
-                <Form.ControlLabel>Mobile</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Mobile *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   name="mobile"

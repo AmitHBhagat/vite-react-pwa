@@ -30,6 +30,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { THEME } from "../../../utilities/theme";
 import "./society.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const SocietyList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const SocietyList = ({ pageTitle }) => {
     getSocieties();
   }, []);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getSocieties = async () => {
     try {

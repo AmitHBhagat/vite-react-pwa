@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
-  Input,
   Pagination,
-  InputGroup,
   Affix,
   Button,
   FlexboxGrid,
@@ -17,7 +15,6 @@ import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell, ColumnGroup } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
 
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import classNames from "classnames";
@@ -28,8 +25,24 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import ErrorMessage from "../../../components/Form/ErrorMessage";
-
+import {
+  createPaymentReceiptPdf,
+  exportToExcel2,
+} from "../../../utilities/ExportDataToExcelOrPDF";
 import { formatDate } from "../../../utilities/formatDate";
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  PDFDownloadLink,
+  pdf,
+  Image,
+} from "@react-pdf/renderer";
+import logoImage from "../../../assets/images/logo.jpg";
+import societyService from "../../../services/society.service";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const IncomeExpenditureList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -46,11 +59,31 @@ const IncomeExpenditureList = ({ pageTitle }) => {
   const [pageError, setPageError] = useState("");
   const [incomeExpense, setIncomeExpense] = useState([]);
   const [frmSubmitted, setFrmSubmitted] = useState(false);
+  const [societyInfo, setSocietyInfo] = useState("");
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
-    //getExpenses();
   }, [dispatch, pageTitle]);
+
+  useEffect(() => {
+    fetchSocietyInfo();
+  }, [societyId]);
+
+  async function fetchSocietyInfo() {
+    try {
+      const resp = await trackPromise(societyService.getSocietyById(societyId));
+      const { data } = resp;
+      if (data.success) {
+        setSocietyInfo(data.society.societyName);
+      }
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message ||
+        "Error in deleting the billing adjustment";
+      toast.error(errMsg);
+      console.error("Fetch society contact catch => ", errMsg);
+    }
+  }
 
   function getFormSchema() {
     return {
@@ -60,7 +93,7 @@ const IncomeExpenditureList = ({ pageTitle }) => {
 
   function getValidationSchema() {
     return Yup.object().shape({
-      dateRange: Yup.array().required("Date range is required"), // Add this line
+      dateRange: Yup.array().required("Date range is required"),
     });
   }
 
@@ -100,7 +133,7 @@ const IncomeExpenditureList = ({ pageTitle }) => {
     setIncomeExpense(respdata);
   }
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getData = () => {
     const combineBalanceData = (expenses = [], income = []) => {
@@ -118,7 +151,6 @@ const IncomeExpenditureList = ({ pageTitle }) => {
       incomeExpense.income
     );
 
-    // Sorting logic
     if (sortColumn && sortType) {
       combinedData.sort((a, b) => {
         let x = a[sortColumn];
@@ -133,7 +165,6 @@ const IncomeExpenditureList = ({ pageTitle }) => {
       });
     }
 
-    // Pagination logic
     const start = limit * (page - 1);
     const end = start + limit;
     return combinedData.slice(start, end);
@@ -151,6 +182,157 @@ const IncomeExpenditureList = ({ pageTitle }) => {
   const handleChangeLimit = (dataKey) => {
     setPage(1);
     setLimit(dataKey);
+  };
+
+  const handleExportExcel = async () => {
+    exportToExcel2({
+      data: getData(),
+      worksheetName: "Income & Expenditure",
+      headersConfig: [
+        { title: "Expenses Category Name", key: "expenseCategory" },
+        { title: "Expenses Amount", key: "expenseAmount" },
+
+        { title: "Income Category Name", key: "incomeType" },
+        { title: "Income Amount", key: "incomeAmount" },
+      ],
+      filename: "Income_and_expenditure_report.xlsx",
+      headerStyle: {
+        font: { bold: true },
+        fill: {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD9D9D9" },
+        },
+        alignment: { horizontal: "center" },
+      },
+      onSuccess: () => toast.success("Excel exported successfully."),
+      onError: (error) => console.error("Export error:", error),
+    });
+  };
+  const styles = StyleSheet.create({
+    page: {
+      padding: 20,
+      fontSize: 10,
+    },
+    header: {
+      textAlign: "center",
+      marginBottom: 10,
+      fontSize: 12,
+    },
+    headerTwo: {
+      paddingBottom: 15,
+    },
+    table: {
+      display: "table",
+      width: "auto",
+      borderStyle: "solid",
+      borderWidth: 1,
+      borderRightWidth: 0,
+      borderBottomWidth: 0,
+    },
+    tableRow: {
+      flexDirection: "row",
+    },
+    tableCol: {
+      width: "25%",
+      borderStyle: "solid",
+      borderWidth: 1,
+      borderLeftWidth: 0,
+      borderTopWidth: 0,
+      textAlign: "center",
+    },
+    tableCellHeader: {
+      margin: 5,
+      fontWeight: "bold",
+    },
+    tableCell: {
+      margin: 5,
+    },
+    footer: {
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      marginRight: 20,
+      marginBottom: 20,
+    },
+  });
+
+  const MyDocument = ({ data }) => {
+    const startDate = formatDate(frmObj.values.dateRange[0], "DD-MM-YY");
+    const endDate = formatDate(frmObj.values.dateRange[1], "DD-MM-YY");
+
+    return (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.header}>{societyInfo}</Text>
+          <Text style={styles.headerTwo}>
+            Income and Expenditure Report for the Date Range from {startDate} to
+            {endDate}
+          </Text>
+
+          <View style={styles.table}>
+            {/* First header row: Group Headers */}
+            <View style={styles.tableRow}>
+              <View style={[styles.tableCol, { width: "50%" }]}>
+                <Text style={styles.tableCellHeader}>Expense</Text>
+              </View>
+              <View style={[styles.tableCol, { width: "50%" }]}>
+                <Text style={styles.tableCellHeader}>Income</Text>
+              </View>
+            </View>
+
+            {/* Second header row: Detailed Column Headers */}
+            <View style={styles.tableRow}>
+              <View style={styles.tableCol}>
+                <Text style={styles.tableCellHeader}>Category Name</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text style={styles.tableCellHeader}>Amount</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text style={styles.tableCellHeader}>Category Name</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text style={styles.tableCellHeader}>Amount</Text>
+              </View>
+            </View>
+
+            {/* Data Rows */}
+            {data?.map((row, index) => (
+              <View style={styles.tableRow} key={index}>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{row.expenseCategory}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{row.expenseAmount}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{row.incomeType}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{row.incomeAmount}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.footer}>
+            <Text
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                marginRight: 25,
+                marginBottom: 100,
+              }}
+            >
+              Powered by
+            </Text>
+            <Image src={logoImage} style={{ width: 100, height: 100 }} />
+          </View>
+        </Page>
+      </Document>
+    );
   };
 
   return (
@@ -193,11 +375,36 @@ const IncomeExpenditureList = ({ pageTitle }) => {
                     msgText={frmObj.errors.dateRange}
                   />
                 </Form.Group>
+                <Form.Group controlId="dateRange"></Form.Group>
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item>
                 <Button appearance="primary" size="md" type="submit">
                   Show
+                </Button>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item>
+                <Button
+                  appearance="primary"
+                  size="md"
+                  onClick={handleExportExcel}
+                >
+                  Export To Excel
+                </Button>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item>
+                <Button
+                  appearance="primary"
+                  size="md"
+                  onClick={() =>
+                    createPaymentReceiptPdf(
+                      MyDocument,
+                      getData(),
+                      `Income-and-Expenditure.pdf`
+                    )
+                  }
+                >
+                  Export To PDF
                 </Button>
               </FlexboxGrid.Item>
             </FlexboxGrid>

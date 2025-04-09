@@ -1,47 +1,69 @@
 import React, { useState, useEffect, forwardRef } from "react";
-import { Form, Button, Grid, Row, Col, Input, FlexboxGrid } from "rsuite";
-import FlexboxGridItem from "rsuite/esm/FlexboxGrid/FlexboxGridItem";
+import {
+  Form,
+  Button,
+  Grid,
+  Row,
+  Col,
+  Input,
+  FlexboxGrid,
+  Uploader,
+  InputPicker,
+} from "rsuite";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { trackPromise } from "react-promise-tracker";
+import VisitorService from "../../../services/visitor.service";
+import FlatService from "../../../services/flat.service";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import QueryService from "../../../services/requestQuery.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ErrorMessage, {
   PageErrorMessage,
 } from "../../../components/Form/ErrorMessage";
-import { REQUESTQUERY_STATUS } from "../../../utilities/constants";
-
-function getFormSchema() {
-  return {
-    societyId: "",
-    flatNo: "",
-    memberName: "",
-    title: "",
-    description: "",
-    commments: "",
-    status: REQUESTQUERY_STATUS[0].value,
-  };
-}
-
-function getValidationSchema() {
-  return Yup.object().shape({
-    title: Yup.string().required("Title is required"),
-    description: Yup.string().required("Description is required"),
-    commments: Yup.string().required("Comments is required"),
-  });
-}
+import FlexboxGridItem from "rsuite/esm/FlexboxGrid/FlexboxGridItem";
 
 function VisitorAdd({ pageTitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { visitorId } = useParams();
   const authState = useSelector((state) => state.authState);
-  const { queryId } = useParams();
+  const societyId = authState?.user?.societyName;
   const [pageError, setPageError] = useState("");
-  const [queryDetails, setQueryDetails] = useState({});
+  const [flats, setFlats] = useState([]);
+  const [visitorDetails, setVisitorDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
+  const [fileList, setFileList] = useState([]);
+
+  function getFormSchema() {
+    return {
+      societyId: societyId || "",
+      flat: "",
+      flatContact: "",
+      description: "",
+      visitorName: "",
+      visitorPhone: "",
+      visitorImage: null,
+    };
+  }
+
+  function getValidationSchema() {
+    return Yup.object().shape({
+      flat: Yup.string().required("Flat is required"),
+      flatContact: Yup.string()
+        .min(10, "Your flat contact must be at least 10 numbers long")
+        .max(10, "Your flat contact must be max 10 numbers long")
+        .required("Flat contact is Required"),
+      description: Yup.string().required("Description is required"),
+      visitorName: Yup.string().required("Visitor name is required"),
+      visitorPhone: Yup.string()
+        .min(10, "Your visitor contact must be at least 10 numbers long")
+        .max(10, "Your visitor contact must be max 10 numbers long")
+        .required("Visitor contact is Required"),
+      visitorImage: Yup.mixed().nullable(),
+    });
+  }
 
   const frmObj = useFormik({
     initialValues: getFormSchema(),
@@ -54,74 +76,154 @@ function VisitorAdd({ pageTitle }) {
   }, [dispatch, pageTitle]);
 
   useEffect(() => {
-    if (queryId) fetchQueryDetails(queryId);
-  }, [queryId]);
-
-  useEffect(() => {
-    if (authState.selectedFlat.societyId && authState.selectedFlat.value)
-      populateForm({
-        memberName: authState.selectedFlat.ownerName || authState.user.userName,
-        societyId: authState.selectedFlat.societyId,
-        flatNo: authState.selectedFlat.flatNo,
-      });
-  }, [authState.selectedFlat]);
-
-  useEffect(() => {
-    if (queryDetails._id) {
-      populateForm(queryDetails);
+    if (visitorId) {
+      fetchVisitorDetails(visitorId);
     }
-  }, [queryDetails]);
+  }, [visitorId]);
 
-  function navigateBack() {
-    navigate(-1);
-  }
+  useEffect(() => {
+    if (visitorDetails?._id) {
+      populateForm();
+    }
+  }, [visitorDetails]);
 
-  function populateForm(newData = {}) {
-    const formobj = {
-      ...frmObj.values,
-      ...newData,
+  useEffect(() => {
+    if (societyId) {
+      getAllFlats();
+    }
+  }, [societyId]);
+
+  function populateForm() {
+    const formObj = {
+      ...getFormSchema(),
+      ...visitorDetails,
+      flat: visitorDetails.flat?._id || "",
     };
-    frmObj.setValues(formobj);
+    frmObj.setValues(formObj);
+    if (visitorDetails.visitorImage) {
+      setFileList([
+        {
+          name: visitorDetails.visitorImage.title || "visitor-image",
+          fileKey: 1,
+          url: visitorDetails.visitorImage.fileurl,
+        },
+      ]);
+    }
   }
 
-  async function fetchQueryDetails(queryid) {
-    setPageError("");
-    let respdata = [];
+  const getAllFlats = async () => {
     try {
-      const resp = await trackPromise(QueryService.getQueryDetails(queryid));
+      const resp = await trackPromise(
+        FlatService.getFlatsBySocietyId(societyId)
+      );
       const { data } = resp;
-      if (data.success) respdata = resp.data.queriess;
+      if (data.success) {
+        const flatOptions = data.flats.map((flat) => ({
+          label: flat.flatNo,
+          value: flat._id,
+        }));
+        setFlats(flatOptions);
+      }
     } catch (err) {
-      console.error("Queries fetch catch => ", err);
-      const errMsg =
-        err?.response?.data?.message || `Error in fetching queries`;
+      const errMsg = err.response?.data?.message || "Error fetching the flats";
       toast.error(errMsg);
       setPageError(errMsg);
+      console.error("Error fetching the flats => ", err);
     }
-    setQueryDetails(respdata);
-  }
+  };
+
+  const fetchVisitorDetails = async (visitorId) => {
+    try {
+      const resp = await trackPromise(
+        VisitorService.getSingleVisitor(visitorId)
+      );
+      const { data } = resp;
+      if (data.success) {
+        const visitor = data.visitor;
+        setVisitorDetails(visitor);
+      }
+    } catch (err) {
+      const errMsg =
+        err.response?.data?.message || "Error fetching the visitor";
+      toast.error(errMsg);
+      setPageError(errMsg);
+      console.error("Fetch visitor details catch => ", err);
+    }
+  };
 
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);
   };
 
-  async function formSubmit() {
-    setFrmSubmitted(false);
-    setPageError("");
-    const payload = { ...frmObj.values };
+  async function formSubmit(values) {
+    setFrmSubmitted(true);
+
+    let payload = {
+      societyId: values.societyId,
+      flat: values.flat,
+      flatContact: values.flatContact,
+      description: values.description,
+      visitorName: values.visitorName,
+      visitorPhone: values.visitorPhone,
+      visitorImage: values.visitorImage,
+    };
+
+    if (fileList.length > 0 && fileList[0].blobFile instanceof File) {
+      const file = fileList[0].blobFile;
+      const rename_file = `${societyId}___${file?.name || "visitor-image"}`;
+
+      const imgFormData = new FormData();
+      imgFormData.append("fileurl", file, rename_file);
+
+      try {
+        const imgResp = await trackPromise(
+          VisitorService.addVisitorImage(imgFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+        );
+        const { data } = imgResp;
+
+        if (data.success) {
+          const image = data.visitor[0];
+          payload.visitorImage = {
+            fileurl: image.location || image.fileurl,
+            title: image.originalname || rename_file,
+            mimetype: image.mimetype || file.type,
+            contentType: image.contentType || "application/octet-stream",
+          };
+        } else {
+          throw new Error("Image upload failed");
+        }
+      } catch (err) {
+        const errMsg = err.response?.data?.message || "Error uploading image";
+        toast.error(errMsg);
+        setPageError(errMsg);
+        console.error("Image upload error => ", err);
+        return;
+      }
+    }
+
     try {
-      const resp = await trackPromise(QueryService.createQuery(payload));
+      const resp = visitorId
+        ? await trackPromise(VisitorService.updateVisitor(visitorId, payload))
+        : await trackPromise(VisitorService.createVisitor(payload));
       const { data } = resp;
       if (data.success) {
-        toast.success("Query saved successfully!");
+        toast.success(
+          `Visitor ${visitorId ? "updated" : "created"} successfully!`
+        );
         navigate(-1);
       }
     } catch (err) {
-      console.error("Query save error catch => ", err);
       const errMsg =
-        err?.response?.data?.message || `Error in creating the query`;
+        err.response?.data?.message ||
+        `Error ${visitorId ? "updating" : "adding"} the visitor`;
       toast.error(errMsg);
       setPageError(errMsg);
+      console.error(
+        `Visitor ${visitorId ? "updating" : "adding"} error catch => `,
+        err.response?.data
+      );
     }
   }
 
@@ -137,44 +239,50 @@ function VisitorAdd({ pageTitle }) {
       >
         <Grid fluid className="">
           <Row gutter={20}>
-            <Col xs={24} lg={8} xl={6}>
-              <Form.Group controlId="title">
-                <Form.ControlLabel>Title</Form.ControlLabel>
-                <Form.Control
-                  name="title"
-                  placeholder="Enter Title"
-                  value={frmObj.values.title}
-                  onChange={handleFieldChange("title")}
+            <Col xs={16} md={8}>
+              <Form.Group controlId="flat">
+                <Form.ControlLabel>Flat No</Form.ControlLabel>
+                <InputPicker
+                  data={flats}
+                  searchable
+                  placeholder="Select Flat"
+                  value={frmObj.values.flat}
+                  onChange={handleFieldChange("flat")}
+                  style={{ width: "100%" }}
+                  cleanable={false}
+                  virtualized={false}
                 />
                 <ErrorMessage
                   show={frmSubmitted}
-                  msgText={frmObj.errors.title}
+                  msgText={frmObj.errors.flat}
                 />
               </Form.Group>
             </Col>
-            <Col xs={24} lg={8} xl={8}>
-              <Form.Group controlId="commments">
-                <Form.ControlLabel>Comment</Form.ControlLabel>
+            <Col xs={16} md={8}>
+              <Form.Group controlId="flatContact">
+                <Form.ControlLabel>Flat Contact</Form.ControlLabel>
                 <Form.Control
-                  name="commments"
-                  placeholder="Enter Comment"
-                  value={frmObj.values.commments}
-                  onChange={handleFieldChange("commments")}
+                  name="flatContact"
+                  placeholder="Enter Flat Contact"
+                  type="number"
+                  value={frmObj.values.flatContact}
+                  onChange={handleFieldChange("flatContact")}
+                  inputMode="numeric"
+                  maxLength={10}
                 />
                 <ErrorMessage
                   show={frmSubmitted}
-                  msgText={frmObj.errors.commments}
+                  msgText={frmObj.errors.flatContact}
                 />
               </Form.Group>
             </Col>
-            <Col xs={24} lg={16} xl={10}>
+            <Col xs={16} md={8}>
               <Form.Group controlId="description">
                 <Form.ControlLabel>Description</Form.ControlLabel>
                 <Form.Control
                   name="description"
-                  placeholder="Enter Description"
                   accepter={Textarea}
-                  rows="3"
+                  placeholder="Enter Description"
                   value={frmObj.values.description}
                   onChange={handleFieldChange("description")}
                 />
@@ -184,22 +292,75 @@ function VisitorAdd({ pageTitle }) {
                 />
               </Form.Group>
             </Col>
+            <Col xs={16} md={8}>
+              <Form.Group controlId="visitorName">
+                <Form.ControlLabel>Visitor Name</Form.ControlLabel>
+                <Form.Control
+                  name="visitorName"
+                  placeholder="Enter Visitor Name"
+                  value={frmObj.values.visitorName}
+                  onChange={handleFieldChange("visitorName")}
+                />
+                <ErrorMessage
+                  show={frmSubmitted}
+                  msgText={frmObj.errors.visitorName}
+                />
+              </Form.Group>
+            </Col>
+            <Col xs={16} md={8}>
+              <Form.Group controlId="visitorPhone">
+                <Form.ControlLabel>Visitor Phone</Form.ControlLabel>
+                <Form.Control
+                  name="visitorPhone"
+                  placeholder="Enter Visitor Phone"
+                  value={frmObj.values.visitorPhone}
+                  type="number"
+                  onChange={handleFieldChange("visitorPhone")}
+                  inputMode="numeric"
+                />
+                <ErrorMessage
+                  show={frmSubmitted}
+                  msgText={frmObj.errors.visitorPhone}
+                />
+              </Form.Group>
+            </Col>
+            <Col xs={16} md={8}>
+              <Form.Group controlId="visitorImage">
+                <Form.ControlLabel>Visitor Image</Form.ControlLabel>
+                <Uploader
+                  autoUpload={false}
+                  fileList={fileList}
+                  onChange={(files) => setFileList(files.slice(-1))}
+                  accept="image/*"
+                  listType="picture-text"
+                  multiple={false}
+                />
+                <ErrorMessage
+                  show={frmSubmitted}
+                  msgText={frmObj.errors.visitorImage}
+                />
+              </Form.Group>
+            </Col>
           </Row>
-
-          <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
 
           <FlexboxGrid justify="end">
             <FlexboxGridItem>
               <Button appearance="primary" size="lg" type="submit">
-                Create
+                {visitorId ? "Update" : "Create"}
               </Button>
-              <Button onClick={navigateBack} size="lg" className="mr-l-1">
+              <Button
+                as={Link}
+                to="../visitor-entries"
+                size="lg"
+                className="mr-l-1"
+              >
                 Cancel
               </Button>
             </FlexboxGridItem>
           </FlexboxGrid>
         </Grid>
       </Form>
+      <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
     </div>
   );
 }

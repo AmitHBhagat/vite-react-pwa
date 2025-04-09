@@ -39,6 +39,14 @@
 	text-align: center;
 }
 
+.fontSize20 {
+	font-size: 1.25rem
+}
+
+.txt-justify {
+	text-align: justify;
+}
+
 /* ===== structure classes ===== */
 .x-center {
 	display: flex;
@@ -54,15 +62,23 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	gap: 0.5rem;
 }
 
-.fontSize20 {
-	font-size: 1.25rem
+.xy-col-center {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
-.txt-justify {
-	text-align: justify;
+/* behavior classes================= */
+.cursor-pointer {
+	cursor: pointer;
 }
+
+/* ================================== */
+
 
 /* icons styles */
 

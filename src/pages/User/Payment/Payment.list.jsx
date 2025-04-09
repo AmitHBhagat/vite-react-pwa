@@ -11,6 +11,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const PaymentList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const PaymentList = ({ pageTitle }) => {
       getBills();
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBills = async () => {
     try {

@@ -30,6 +30,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import classNames from "classnames";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const MemberUsers = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const MemberUsers = ({ pageTitle }) => {
     }
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const fetchUserInfo = async (societyId) => {
     setPageError("");

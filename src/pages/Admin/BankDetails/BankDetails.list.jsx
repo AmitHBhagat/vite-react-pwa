@@ -30,6 +30,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 
 import { THEME } from "../../../utilities/theme";
+import { BREAK_POINTS } from "../../../utilities/constants.js";
 
 const BankDetail = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -54,7 +55,7 @@ const BankDetail = ({ pageTitle }) => {
     getBankDetail();
   }, [dispatch, pageTitle]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBankDetail = async () => {
     try {

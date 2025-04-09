@@ -37,6 +37,7 @@ import ErrorMessage, {
 } from "../../../components/Form/ErrorMessage";
 
 import { THEME } from "../../../utilities/theme";
+import { BREAK_POINTS } from "../../../utilities/constants.js";
 
 const ExpenseCategory = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -66,7 +67,7 @@ const ExpenseCategory = ({ pageTitle }) => {
     if (societyId) getExpenseCategories(societyId);
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getExpenseCategories = async (societyId) => {
     setPageError("");
@@ -409,7 +410,9 @@ const ModalForm = ({
             <Row gutter={0}>
               <Col xs={24}>
                 <Form.Group controlId="categoryName">
-                  <Form.ControlLabel>Category Name</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Category Name *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="categoryName"
                     placeholder="Enter a Category Name"

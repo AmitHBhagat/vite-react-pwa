@@ -30,6 +30,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import parse from "html-react-parser";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VendorsList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const VendorsList = ({ pageTitle }) => {
       getVendors(authState.selectedFlat.societyId);
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVendors = async (societyid) => {
     setPageError("");

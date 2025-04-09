@@ -146,7 +146,9 @@ function AddEditBankDetail({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} sm={12} lg={8}>
               <Form.Group controlId="accountHolderName">
-                <Form.ControlLabel>Account Holder Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Account Holder Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="accountHolderName"
                   placeholder="Enter a Account Holder Name"
@@ -161,7 +163,9 @@ function AddEditBankDetail({ pageTitle }) {
             </Col>
             <Col xs={24} sm={12} lg={8}>
               <Form.Group controlId="accountNumber">
-                <Form.ControlLabel>Account Number</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Account Number *
+                </Form.ControlLabel>
                 <Form.Control
                   name="accountNumber"
                   placeholder="Enter a Account Number"
@@ -176,7 +180,9 @@ function AddEditBankDetail({ pageTitle }) {
             </Col>
             <Col xs={24} sm={12} lg={8}>
               <Form.Group controlId="IFSC_Code">
-                <Form.ControlLabel>IFSC Code</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  IFSC Code *
+                </Form.ControlLabel>
                 <Form.Control
                   name="IFSC_Code"
                   placeholder="Enter a IFSC Code"
@@ -191,7 +197,9 @@ function AddEditBankDetail({ pageTitle }) {
             </Col>
             <Col xs={24} sm={12} lg={8}>
               <Form.Group controlId="bankName">
-                <Form.ControlLabel>Bank Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Bank Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="bankName"
                   placeholder="Enter a Bank Name"
@@ -206,7 +214,9 @@ function AddEditBankDetail({ pageTitle }) {
             </Col>
             <Col xs={24} sm={12} lg={8}>
               <Form.Group controlId="branchName">
-                <Form.ControlLabel>Branch Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Branch Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="branchName"
                   placeholder="Enter a Branch Name"

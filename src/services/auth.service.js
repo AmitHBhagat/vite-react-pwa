@@ -10,6 +10,10 @@ class httpService {
     return httpClient.put(`${baseSlug}/update`, data, config);
   }
 
+  addProfileImage(image, config) {
+    return httpClient.post(`/admin/visitor/images/`, image, config);
+  }
+
   updatePassword(data) {
     return httpClient.put(`/password/update`, data);
   }

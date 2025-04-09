@@ -29,6 +29,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import classNames from "classnames";
 import "./society.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const SocietyContact = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ const SocietyContact = ({ pageTitle }) => {
     }
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   async function fetchSocietyInfo() {
     try {

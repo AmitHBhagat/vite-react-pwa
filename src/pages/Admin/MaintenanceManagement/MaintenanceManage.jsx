@@ -23,6 +23,7 @@ import maintenanceService from "../../../services/maintenance.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const MaintenanceManagement = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -62,7 +63,7 @@ const MaintenanceManagement = ({ pageTitle }) => {
 
   console.log("currentList.....", currentList, billChargesHeaders);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getData = () => {
     let filteredMaintenanceInfo = currentList.filter((currentList) => {

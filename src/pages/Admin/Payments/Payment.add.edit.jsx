@@ -227,7 +227,9 @@ function AddEditPayment({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="flatNo">
-                <Form.ControlLabel>Flat No. *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Flat No. *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="flatNo"
@@ -245,7 +247,9 @@ function AddEditPayment({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="paymentType">
-                <Form.ControlLabel>Payment Type *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Payment Type *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="paymentType"
@@ -263,7 +267,9 @@ function AddEditPayment({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="paymentMode">
-                <Form.ControlLabel>Payment Mode *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Payment Mode *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="paymentMode"
@@ -281,7 +287,9 @@ function AddEditPayment({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="transactionDetails">
-                <Form.ControlLabel>Transaction Details *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Transaction Details *
+                </Form.ControlLabel>
                 <Form.Control
                   name="transactionDetails"
                   placeholder="Enter a transaction details"
@@ -296,7 +304,9 @@ function AddEditPayment({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="amount">
-                <Form.ControlLabel>Amount *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Amount *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   name="amount"
@@ -347,7 +357,6 @@ function AddEditPayment({ pageTitle }) {
               <Form.ControlLabel>Active</Form.ControlLabel>
               <Form.Group className="status">
                 <Checkbox
-                  block
                   name="status"
                   onChange={(_, boolean) => {
                     handleCheckboxChange("status")(boolean);

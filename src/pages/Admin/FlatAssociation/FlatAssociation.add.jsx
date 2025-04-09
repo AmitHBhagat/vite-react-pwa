@@ -28,6 +28,8 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const FlatAssociation = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -44,6 +46,7 @@ const FlatAssociation = ({ pageTitle }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [pageError, setPageError] = useState("");
   const [deleteUser, setDeleteUser] = useState([]);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
@@ -56,17 +59,24 @@ const FlatAssociation = ({ pageTitle }) => {
     getFlats();
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getFlats = async () => {
+    setPageError("");
+    let flats = [];
     try {
       const resp = await trackPromise(
         FlatService.getFlatsBySocietyId(societyId)
       );
-      setFlats(resp.data.flats);
+      const { data } = resp;
+      if (data.success) flats = data.flats;
     } catch (error) {
-      toast.error(error.response.data.message);
+      const errMsg = err?.response?.data?.message || "Error in fetching flats";
+      toast.error(errMsg);
       console.error("Failed to fetch flats", error);
+      setPageError(errMsg);
+    } finally {
+      setFlats(flats);
     }
   };
 
@@ -111,6 +121,7 @@ const FlatAssociation = ({ pageTitle }) => {
   };
 
   const handleSelectedNumber = async (rowId) => {
+    setPageError("");
     const number = searchNumber[rowId];
     if (!number) return;
     try {
@@ -118,15 +129,24 @@ const FlatAssociation = ({ pageTitle }) => {
         adminService.getUserByMobileNumber(number)
       );
       const { data } = resp;
-
-      setGetUser((prevUser) => ({ ...prevUser, [rowId]: data.user }));
+      if (data.success && data.user.length === 0) {
+        toast.info("no user fond with this number");
+      }
+      if (data.success) {
+        setGetUser((prevUser) => ({ ...prevUser, [rowId]: data.user }));
+      }
     } catch (error) {
-      toast.error(error.response.data.message);
+      const errMsg =
+        err?.response?.data?.message ||
+        "Error in fetching user by mobile number";
+      toast.error(errMsg);
       console.error("Failed to fetch user", error);
+      setPageError(errMsg);
     }
   };
 
   const handleSaveUser = async (flatId) => {
+    setPageError("");
     const userId = { userId: getUser[flatId][0]._id };
     try {
       await trackPromise(FlatService.updateFlatAssociation(userId, flatId));
@@ -144,8 +164,11 @@ const FlatAssociation = ({ pageTitle }) => {
       });
       getFlats();
     } catch (error) {
-      toast.error(error.response.data.message);
+      const errMsg =
+        error?.response?.data?.message || "Error in saving the user";
+      toast.error(errMsg);
       console.error("Failed to fetch user", error);
+      setPageError(errMsg);
     }
   };
 
@@ -174,8 +197,11 @@ const FlatAssociation = ({ pageTitle }) => {
       getFlats();
       handleCloseModal();
     } catch (error) {
-      toast.error(error.response.data.message);
+      const errMsg =
+        err?.response?.data?.message || "Error in removing the user";
+      toast.error(errMsg);
       console.error("Failed to fetch user", error);
+      setPageError(errMsg);
     }
   };
 
@@ -329,6 +355,7 @@ const FlatAssociation = ({ pageTitle }) => {
             onChangeLimit={handleChangeLimit}
           />
         </div>
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
 
         <DeleteModal
           isOpen={modalOpen}

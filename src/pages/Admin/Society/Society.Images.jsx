@@ -28,6 +28,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 import "./society.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const SocietyImages = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const SocietyImages = ({ pageTitle }) => {
     }
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const fetchSocietyInfo = async (societyId) => {
     setPageError("");

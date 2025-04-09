@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Row,
@@ -14,8 +14,6 @@ import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
 import EditIcon from "@rsuite/icons/Edit";
-import * as ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
 import { IconButton } from "rsuite";
 import TrashIcon from "@rsuite/icons/Trash";
 import DocPassIcon from "@rsuite/icons/DocPass";
@@ -28,7 +26,7 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
-import { MONTHS } from "../../../utilities/constants";
+import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
 import { formatDate } from "../../../utilities/formatDate";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
@@ -70,7 +68,7 @@ const PaymentDetail = ({ pageTitle }) => {
     getPayments();
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getPayments = async () => {
     setLoading(true);
@@ -97,9 +95,7 @@ const PaymentDetail = ({ pageTitle }) => {
       const payload = {
         paymentDetailsId,
       };
-      const resp = await trackPromise(
-        PaymentsService.generatePaymentReceipt(payload)
-      );
+      await trackPromise(PaymentsService.generatePaymentReceipt(payload));
       getPayments();
       toast.success("Payment receipt generated successfully");
     } catch (error) {
@@ -352,7 +348,7 @@ const PaymentDetail = ({ pageTitle }) => {
                       }}
                     >
                       <IconButton
-                        type="Generate Receipt"
+                        title="Generate Receipt"
                         icon={<DocPassIcon color={THEME[0].CLR_PRIMARY} />}
                         disabled={rowData.paymentReciptGenerated === "true"}
                         onClick={() => generateReceipt(rowData._id)}

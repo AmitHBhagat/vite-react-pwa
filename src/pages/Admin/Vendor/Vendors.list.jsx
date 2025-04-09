@@ -35,6 +35,7 @@ import TrashIcon from "@rsuite/icons/Trash";
 import EditIcon from "@rsuite/icons/Edit";
 import { THEME } from "../../../utilities/theme";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VendorList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -63,7 +64,7 @@ const VendorList = ({ pageTitle }) => {
     if (authState?.user?.societyName) getVendors(authState.user.societyName);
   }, [authState?.user?.societyName]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVendors = async (societyid) => {
     setPageError("");

@@ -48,6 +48,10 @@ function MeetingDetails({ pageTitle }) {
     setMeetingDetail(respdata);
   }
 
+  function navigateBack() {
+    navigate(-1);
+  }
+
   return (
     <>
       <ScrollToTop />
@@ -56,7 +60,8 @@ function MeetingDetails({ pageTitle }) {
         <FlexboxGrid justify="end" className="topfeaturebar">
           <FlexboxGrid.Item>
             <Button
-              onClick={() => navigate("/meetings")}
+              // onClick={() => navigate("/meetings")}
+              onClick={navigateBack}
               appearance="ghost"
               color="blue"
             >

@@ -132,6 +132,9 @@ import OutstandingList from "./pages/Admin/Reports/Outstanding.list";
 import IncomeExpenditureList from "./pages/Admin/Reports/IncomeExpenditure.list";
 import ExpenseAccountLedgerList from "./pages/Admin/Reports/ExpenseAccountLedger.list";
 import Dashboard from "./pages/Admin/DashBoard/Dashboard";
+import DashboardUser from "./pages/User/DashBoard/DashBoardUser.jsx";
+import VisitorDetails from "./pages/Admin/Visitors/Visitor.details.jsx";
+import VisitorListUser from "./pages/User/Visitor/VisitorList.jsx";
 
 const USER_ROLES = {
   superAdmin: "superAdmin",
@@ -427,6 +430,12 @@ const AdminNavs = [
 
 const UserNavs = [
   {
+    eventKey: "member-dashboard",
+    title: "Dashboard",
+    icon: <Icon as={MdDashboard} />,
+    to: "/member-dashboard",
+  },
+  {
     eventKey: "society-information",
     icon: <Icon as={PiBuildings} />,
     title: "Society Information",
@@ -479,6 +488,12 @@ const UserNavs = [
     icon: <Icon as={MdOutlinePoll} />,
     title: "Polling List",
     to: "/polling-list",
+  },
+  {
+    eventKey: "visitors",
+    title: "Visitors",
+    icon: <Icon as={SlPeople} />,
+    to: "/userVisitors-list",
   },
 ];
 
@@ -685,7 +700,7 @@ const AdminRoutes = [
       },
       {
         path: "flat/add",
-        element: <AddFlatManagement pageTitle="Upload Flats" />,
+        element: <AddFlatManagement pageTitle="Add Flats" />,
         id: "flat-add",
       },
       {
@@ -988,15 +1003,19 @@ const AdminRoutes = [
         element: <VisitorListAdmin pageTitle="Visitors List" />,
         id: "visitorsList",
       },
+      {
+        path: "visitors-list/details/:visitorId",
+        element: <VisitorDetails pageTitle="Visitor Details" />,
+      },
     ],
   },
   {
     path: "/",
-    element: <Navigate to="/society-info" replace />,
+    element: <Navigate to="/dashboard" replace />,
   },
   {
     path: "*",
-    element: <Navigate to="/society-info" replace />,
+    element: <Navigate to="/dashboard" replace />,
   },
 ];
 
@@ -1007,7 +1026,12 @@ const UserRoutes = [
     children: [
       {
         path: "",
-        element: <Navigate to="society-information" />,
+        element: <Navigate to="member-dashboard" />,
+      },
+      {
+        path: "member-dashboard",
+        element: <DashboardUser pageTitle="Dashboard" />,
+        id: "member-dashboard",
       },
       {
         path: "profile",
@@ -1019,11 +1043,6 @@ const UserRoutes = [
         element: <ProfileEdit pageTitle="Manage Profile" />,
         id: "profileEdit",
       },
-      // {
-      //   path: "dashboard",
-      //   element: <Dashboard pageTitle="Dashboard" />,
-      //   id: "dashboard",
-      // },
       {
         path: "society-information",
         element: <SocietyInformation pageTitle="Society Information" />,
@@ -1074,15 +1093,28 @@ const UserRoutes = [
         element: <RequestQueryAdd pageTitle="Add Request Query" />,
         id: "request-queries-add",
       },
+      {
+        path: "request-queries/details/:queryId",
+        element: <RequestQueryDetail pageTitle="Request Query Details" />,
+      },
+      {
+        path: "meetings/details/:meetingId",
+        element: <MeetingDetails pageTitle="Meetings Details" />,
+      },
+      {
+        path: "userVisitors-list",
+        element: <VisitorListUser pageTitle="Visitors List" />,
+        id: "userVisitors-list",
+      },
     ],
   },
   {
     path: "/",
-    element: <Navigate to="/society-information" replace />,
+    element: <Navigate to="/member-dashboard" replace />,
   },
   {
     path: "*",
-    element: <Navigate to="/society-information" replace />,
+    element: <Navigate to="/member-dashboard" replace />,
   },
 ];
 
@@ -1102,13 +1134,23 @@ const SecurityRoutes = [
       },
       {
         path: "visitors/add",
-        element: <VisitorAdd pageTitle="Visitor Add" />,
+        element: <VisitorAdd pageTitle="Add Visitor" />,
         id: "visitors-add",
       },
       {
         path: "visitors/edit/:visitorId",
         element: <VisitorAdd pageTitle="Visitor Edit" />,
         id: "visitors-edit",
+      },
+      {
+        path: "profile",
+        element: <ProfileDetails pageTitle="Profile Details" />,
+        id: "profile",
+      },
+      {
+        path: "profile/edit",
+        element: <ProfileEdit pageTitle="Manage Profile" />,
+        id: "profileEdit",
       },
     ],
   },

@@ -30,6 +30,8 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import StatusIndicator from "../../../components/StatusIndicator/StatusIndicator";
+import { BREAK_POINTS } from "../../../utilities/constants";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const FlatManagementList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -42,6 +44,7 @@ const FlatManagementList = ({ pageTitle }) => {
   const [sortColumn, setSortColumn] = useState();
   const [sortType, setSortType] = useState();
   const [loading, setLoading] = useState(false);
+  const [pageError, setPageError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selFlatManagement, setSelFlatManagement] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -55,20 +58,27 @@ const FlatManagementList = ({ pageTitle }) => {
     getFlats();
   }, [dispatch, pageTitle]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getFlats = async () => {
+    setPageError("");
+    let flats = null;
     try {
       setLoading(true);
       const resp = await trackPromise(
         FlatManagementService.getFlatsBySocietyId(societyId)
       );
-      setFlats(resp.data.flats);
+      const { data } = resp;
+      if (data.success) flats = data.flats;
     } catch (error) {
-      toast.error(error.response.data.message);
+      const errMsg =
+        error?.response?.data?.message || "Error in fetching flats";
+      toast.error(errMsg);
       console.error("Failed to fetch flats", error);
+      setPageError(errMsg);
     } finally {
       setLoading(false);
+      setFlats(flats);
     }
   };
 
@@ -341,6 +351,7 @@ const FlatManagementList = ({ pageTitle }) => {
             onChangeLimit={handleChangeLimit}
           />
         </div>
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
 
         <DeleteModal
           isOpen={modalOpen}

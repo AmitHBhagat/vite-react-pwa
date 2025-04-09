@@ -32,6 +32,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import classNames from "classnames";
 
 import "../../../layouts/ProtectedLayout.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const Users = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -162,7 +163,7 @@ const Users = ({ pageTitle }) => {
     }
   }
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   return (
     <Container className="users-container">

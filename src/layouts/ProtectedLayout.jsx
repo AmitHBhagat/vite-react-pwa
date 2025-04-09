@@ -25,6 +25,7 @@ import {
 } from "../AppRoutes";
 import Logo from "../assets/images/logo.jpg";
 import "./ProtectedLayout.css";
+import { BREAK_POINTS } from "../utilities/constants";
 
 const { getHeight, on } = DOMHelper;
 
@@ -54,7 +55,7 @@ function ProtectedLayout() {
     const width = window.innerWidth;
     setWindowHeight(getHeight(window));
     setWindowWidth(width);
-    setExpand(width >= 768);
+    setExpand(width >= BREAK_POINTS.MD);
   };
 
   const sideNavList =
@@ -75,11 +76,11 @@ function ProtectedLayout() {
     : {};
 
   const sidebarClasses = classNames("sidebar", {
-    "sidebar-overlay": !expand && windowWidth < 1200,
+    "sidebar-overlay": !expand && windowWidth < BREAK_POINTS.XL,
   });
 
   const sidebarWidth =
-    windowWidth < 1200 ? (expand ? 190 : 50) : expand ? 260 : 50;
+    windowWidth < BREAK_POINTS.XL ? (expand ? 190 : 50) : expand ? 260 : 50;
 
   return (
     <CustomProvider theme={theme}>

@@ -31,6 +31,7 @@ import reportService from "../../../services/report.service";
 import expenseCategoryService from "../../../services/expenseCategory.service";
 import { capitalizeFirstLetter } from "../../../utilities/functions";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const ExpenseAccountLedgerList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -90,7 +91,7 @@ const ExpenseAccountLedgerList = ({ pageTitle }) => {
       }
     },
   });
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getExpenseCategories = async () => {
     let expenseCategories = [];

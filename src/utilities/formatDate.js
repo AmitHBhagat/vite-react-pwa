@@ -29,3 +29,11 @@ export const getStartOfDay = (date) => {
 export const getEndOfDay = (date) => {
   return moment(date).endOf("day").toISOString();
 };
+
+export const getDayMonthYear = (date) => {
+  const day = moment(date).format("D");
+  const month = moment(date).format("MM");
+  const year = moment(date).format("YYYY");
+
+  return { day, month, year };
+};

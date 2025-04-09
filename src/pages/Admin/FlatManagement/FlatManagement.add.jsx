@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -6,7 +6,6 @@ import {
   Row,
   Col,
   InputPicker,
-  Input,
   FlexboxGrid,
   Checkbox,
   DatePicker,
@@ -176,46 +175,58 @@ function AddFlatManagement({ pageTitle }) {
   }
 
   async function fetchFlatDetails() {
+    setPageError("");
+    let flatDetails = {};
     try {
       const resp = await trackPromise(flatService.getFlatById(flatId));
       const { data } = resp;
-      if (data.success) {
-        setFlatDetails(data.flat);
-      }
+      if (data.success) flatDetails = data.flat;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch Flats catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching flat details";
+      toast.error(errMsg);
+      console.error("Fetch Flats catch => ", errMsg);
+      setPageError(errMsg);
     }
+    setFlatDetails(flatDetails);
   }
 
   async function getMaintenanceByIdForMaintenanceType() {
+    setPageError("");
+    let maintenanceType;
     try {
       const resp = await trackPromise(
         maintenanceMasterService.getMaintenanceById(societyId)
       );
 
       const { data } = resp;
-      if (data.success) {
-        setMaintenanceType(data?.maintenance[0]?.maintenanceType);
-      }
+      if (data.success) maintenanceType = data?.maintenance[0]?.maintenanceType;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch Flats catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching maintenance type";
+      toast.error(errMsg);
+      console.error("Fetch maintenance type catch => ", err);
+      setPageError(errMsg);
     }
+    setMaintenanceType(maintenanceType);
   }
   async function getFlatDeps() {
+    setPageError("");
+    let flatDeps = [];
     try {
       const resp = await trackPromise(
         maintenanceMasterService.getFlatDepsBySocietyId(societyId)
       );
       const { data } = resp;
-      if (data.success) {
-        setFlatDeps(data.flatDeps);
-      }
+      if (data.success) flatDeps = data.flatDeps;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching flat dependency";
+      toast.error(errMsg);
       console.error("Fetch Flats catch => ", err);
+      setPageError(errMsg);
     }
+    setFlatDeps(flatDeps);
   }
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);
@@ -237,15 +248,15 @@ function AddFlatManagement({ pageTitle }) {
       const { data } = resp;
 
       if (data.success) {
-        toast.success("User saved successfully!");
+        toast.success("Flat saved successfully!");
         navigate(-1);
       } else {
       }
     } catch (err) {
-      console.error("User save error catch => ", err);
+      console.error("Flat save error catch => ", err);
       const errMsg =
         err?.response?.data?.message ||
-        `Error in ${societyId ? "updating" : "creating"} the member user`;
+        `Error in ${flatId ? "updating" : "creating"} Flat`;
       toast.error(errMsg);
       setPageError(errMsg);
     }
@@ -265,7 +276,9 @@ function AddFlatManagement({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="flatNo">
-                <Form.ControlLabel>Flat No *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Flat No *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   name="flatNo"
@@ -281,7 +294,9 @@ function AddFlatManagement({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="ownerName">
-                <Form.ControlLabel>Owner Name *</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Owner Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="ownerName"
                   placeholder="Enter a Owner Name"

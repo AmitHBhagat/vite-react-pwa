@@ -18,7 +18,9 @@ import { useDispatch } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setRouteData } from "../../../stores/appSlice";
-import ErrorMessage from "../../../components/Form/ErrorMessage";
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import FlexboxGridItem from "rsuite/esm/FlexboxGrid/FlexboxGridItem";
 import BillingTable from "../../Superadmin/BillingCharges/BillingTable";
 import {
@@ -56,6 +58,7 @@ function AddMaintenance({ pageTitle }) {
   const { societyId } = useParams();
   const [maintenanceDetails, setMaintenanceDetails] = useState({});
   const [billCharges, setBillCharges] = useState([]);
+  const [pageError, setPageError] = useState("");
   const [frmSubmitted, setFrmSubmitted] = useState(false);
   const [selectedBill, setSelectedBill] = useState({});
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
@@ -73,24 +76,34 @@ function AddMaintenance({ pageTitle }) {
 
   useEffect(() => {
     if (societyId) {
-      async function fetchMaintenanceDetails() {
-        try {
-          const res = await trackPromise(
-            maintenanceMasterService.getMaintenanceById(societyId)
-          );
-          const maintenanceData = res.data;
-          if (maintenanceData.success) {
-            setMaintenanceDetails(maintenanceData.maintenance[0]);
-            setBillCharges(maintenanceData.maintenance[0].billCharges);
-          }
-        } catch (err) {
-          toast.error(err?.response?.data?.message);
-          console.error("Error fetching maintenance details:", err);
-        }
-      }
       fetchMaintenanceDetails();
     }
   }, [societyId]);
+
+  async function fetchMaintenanceDetails() {
+    setPageError("");
+    let maintenanceDetails = {};
+    let billCharges = [];
+    try {
+      const res = await trackPromise(
+        maintenanceMasterService.getMaintenanceById(societyId)
+      );
+      const { data } = res;
+      if (data.success) {
+        maintenanceDetails = data.maintenance[0];
+        billCharges = data.maintenance[0].billCharges;
+      }
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching maintenance details";
+      toast.error(errMsg);
+      console.error("Error fetching maintenance details:", errMsg);
+      setPageError(errMsg);
+    }
+    setMaintenanceDetails(maintenanceDetails);
+    setBillCharges(billCharges);
+  }
+
   useEffect(() => {
     function populateForm() {
       const formobj = {
@@ -149,8 +162,11 @@ function AddMaintenance({ pageTitle }) {
       } else {
       }
     } catch (err) {
-      console.error("maintenance save error catch => ", err);
-      toast.error(err.response.data.message);
+      const errMsg =
+        err?.response?.data?.message || "Error in saving maintenance";
+      console.error("maintenance save error catch => ", errMsg);
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -204,7 +220,9 @@ function AddMaintenance({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group>
-                <Form.ControlLabel>Residential Charges</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Residential Charges *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   accepter={InputNumber}
@@ -220,7 +238,9 @@ function AddMaintenance({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group>
-                <Form.ControlLabel>Commercial Charges</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Commercial Charges *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   accepter={InputNumber}
@@ -254,7 +274,9 @@ function AddMaintenance({ pageTitle }) {
 
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group>
-                <Form.ControlLabel>Arrears Interest</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Arrears Interest *
+                </Form.ControlLabel>
                 <Form.Control
                   name="number"
                   accepter={InputNumber}
@@ -281,6 +303,7 @@ function AddMaintenance({ pageTitle }) {
               </Form.Group>
             </Col>
           </Row>
+          <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
           <Row>
             <div className="content-title">Billing Charges</div>
           </Row>

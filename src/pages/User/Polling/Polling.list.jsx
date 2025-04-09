@@ -14,7 +14,8 @@ import {
   Grid,
   Whisper,
   Tooltip,
-  IconButton,
+  RadioTileGroup,
+  RadioTile,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
@@ -33,15 +34,12 @@ import { formatDate } from "../../../utilities/formatDate";
 import { BiSolidGrid } from "react-icons/bi";
 import parse from "html-react-parser";
 import { Icon } from "@rsuite/icons";
-import EditIcon from "@rsuite/icons/Edit";
-import { THEME } from "../../../utilities/theme";
-import TrashIcon from "@rsuite/icons/Trash";
-import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { CiCircleCheck } from "react-icons/ci";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
-const PollingsList = ({ pageTitle }) => {
+const PollingList = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.authState);
-  const societyId = authState?.user?.societyName;
   const [pageError, setPageError] = useState("");
   const [pollings, setPollings] = useState([]);
   const [topAffixed, setTopAffixed] = useState(false);
@@ -52,21 +50,18 @@ const PollingsList = ({ pageTitle }) => {
   const [sortType, setSortType] = useState();
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [selectedPollings, setSelectedPollings] = useState({});
-  const [deleteConsent, setDeleteConsent] = useState(false);
-  const [deleteMessage, setDeleteMessage] = useState("");
-  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
   }, [dispatch, pageTitle]);
 
   useEffect(() => {
-    if (societyId) getPollings(societyId);
+    if (authState.selectedFlat.societyId)
+      getPollings(authState.selectedFlat.societyId);
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getPollings = async (societyid) => {
     setPageError("");
@@ -113,29 +108,6 @@ const PollingsList = ({ pageTitle }) => {
     return filteredList?.slice(start, end);
   };
 
-  const deletePoll = async () => {
-    try {
-      const resp = await trackPromise(
-        PollingService.deletePoll(selectedPollings._id)
-      );
-      const { data } = resp.data;
-      if (data?.consentRequired) {
-        setDeleteConsent(true);
-        setDeleteMessage(data.message);
-      } else {
-        toast.success(resp.data.message || "Poll deleted successfully");
-        handleDeleteCloseModal();
-        getPollings(societyId);
-      }
-    } catch (error) {
-      const errMsg =
-        error.response.data.message || "Error in deleting the poll";
-      toast.error(errMsg);
-      setDeleteError(errMsg);
-      console.error("Delete poll catch => ", error);
-    }
-  };
-
   const handleSortColumn = (sortColumn, sortType) => {
     setLoading(true);
     setTimeout(() => {
@@ -160,16 +132,6 @@ const PollingsList = ({ pageTitle }) => {
     setModalOpen(false);
   };
 
-  const handleOpenDeleteModal = (item) => {
-    setSelectedPollings(item);
-    setDeleteMessage(`Do you wish to delete this poll`);
-    setModalDeleteOpen(true);
-  };
-
-  const handleDeleteCloseModal = (modal) => {
-    setModalDeleteOpen(false);
-  };
-
   return (
     <Container className="">
       <ScrollToTop />
@@ -190,13 +152,6 @@ const PollingsList = ({ pageTitle }) => {
                   <SearchIcon />
                 </InputGroup.Button>
               </InputGroup>
-            </FlexboxGrid.Item>
-            <FlexboxGrid.Item>
-              <Link to={`/polling/add`}>
-                <Button appearance="primary" size="md">
-                  Add Polling
-                </Button>
-              </Link>
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Affix>
@@ -249,22 +204,15 @@ const PollingsList = ({ pageTitle }) => {
               </Column>
               <Column>
                 <HeaderCell>Action</HeaderCell>
-                <Cell dataKey="pollEndDate">
-                  {(rowData) => (
-                    <div className="action-icons">
-                      <Link to={`/polling/edit/${rowData._id}`}>
-                        <IconButton
-                          title="Edit"
-                          icon={<EditIcon color={THEME[0].CLR_PRIMARY} />}
-                          onClick={() => handleOpenModal(rowData)}
-                        />
-                      </Link>
-                      <IconButton
-                        title="delete"
-                        icon={<TrashIcon color="red" />}
-                        onClick={() => handleOpenDeleteModal(rowData)}
-                      />
-                    </div>
+                <Cell>
+                  {(rawData) => (
+                    <Button
+                      onClick={() => handleOpenModal(rawData)}
+                      appearance="primary"
+                      size="md"
+                    >
+                      Poll
+                    </Button>
                   )}
                 </Cell>
               </Column>
@@ -300,22 +248,12 @@ const PollingsList = ({ pageTitle }) => {
           />
         </div>
 
-        <DeleteModal
-          showBigMsg={true}
-          bigMsg={selectedPollings.pollDescription}
-          isOpen={modalDeleteOpen}
-          onClose={handleDeleteCloseModal}
-          deleteAction={deletePoll}
-          deleteMsg={deleteMessage}
-          deleteErr={deleteError}
-          consentRequired={deleteConsent}
-        />
-
         <DetailsModal
           isOpen={modalOpen}
           onClose={handleCloseModal}
           dataObj={selectedPollings}
           setSelectedPollings={setSelectedPollings}
+          getPollings={getPollings}
         />
 
         <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
@@ -324,15 +262,79 @@ const PollingsList = ({ pageTitle }) => {
   );
 };
 
-export default PollingsList;
+export default PollingList;
 
-const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
+const DetailsModal = ({
+  isOpen,
+  onClose,
+  dataObj = {},
+  setSelectedPollings,
+  getPollings,
+}) => {
+  const authState = useSelector((state) => state.authState);
+  const userId = authState?.user?._id;
+  const societyId = authState?.selectedFlat?.societyId;
+  console.log(authState);
+
+  const hasVotedAlready = dataObj?.pollOptions?.map((opt) => ({
+    ...opt,
+    hasVoted: Array.isArray(opt.voters) ? opt.voters.includes(userId) : false,
+  }));
+
+  const handleVote = async (optionId) => {
+    if (!userId) {
+      toast.error("You need to be logged in to vote!");
+      return;
+    }
+
+    let previousVote = null;
+
+    const updatedPollOptions = dataObj.pollOptions.map((opt) => {
+      if (opt.voters.includes(userId)) {
+        previousVote = opt._id;
+        return {
+          ...opt,
+          votes: opt.votes - 1,
+          voters: opt.voters.filter((voter) => voter !== userId),
+        };
+      }
+      return opt;
+    });
+
+    const finalPollOptions = updatedPollOptions.map((opt) => {
+      if (opt._id === optionId && opt._id !== previousVote) {
+        return {
+          ...opt,
+          votes: opt.votes + 1,
+          voters: [...opt.voters, userId],
+        };
+      }
+      return opt;
+    });
+
+    const updatedPoll = {
+      ...dataObj,
+      pollOptions: finalPollOptions,
+    };
+
+    setSelectedPollings(updatedPoll);
+
+    try {
+      const resp = await PollingService.updatePoll(dataObj._id, updatedPoll);
+      toast.success(resp?.data?.message || "Vote updated successfully!");
+      getPollings(societyId);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Error in voting");
+      console.error(err);
+    }
+  };
+
   return isOpen ? (
     <Modal open={isOpen} onClose={onClose} className="thm-modal">
       <Modal.Header closeButton={false}>
         <Modal.Title>Polling Details</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="pd-b-0">
+      <Modal.Body className="pd-b-0 mr-b-1">
         <Col xs={24}>
           <div className="details-grp">
             <div className="lbl">Polling Description</div>
@@ -353,30 +355,29 @@ const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
                 <div className="val">{formatDate(dataObj.pollEndDate)}</div>
               </div>
             </Col>
-            <Col xs={16}>
-              <div className="details-grp">
-                <div className="lbl">Polling Options</div>
-                {dataObj?.pollOptions?.length ? (
-                  <Table
-                    data={dataObj.pollOptions}
-                    autoHeight
-                    cellBordered
-                    wordWrap="break-word"
+            <Col xs={24}>
+              <RadioTileGroup
+                defaultValue={
+                  dataObj?.pollOptions?.find(
+                    (opt, i) => hasVotedAlready[i]?.hasVoted
+                  )?._id || ""
+                }
+                aria-label="Polling Options"
+                onChange={(value) => handleVote(value)}
+              >
+                {dataObj.pollOptions.map((opt, i) => (
+                  <RadioTile
+                    key={opt?._id}
+                    icon={<Icon as={CiCircleCheck} />}
+                    label={opt.option}
+                    value={opt?._id}
                   >
-                    <Column flexGrow={1}>
-                      <HeaderCell>Option</HeaderCell>
-                      <Cell dataKey="option" />
-                    </Column>
-
-                    <Column width={100}>
-                      <HeaderCell>Votes</HeaderCell>
-                      <Cell dataKey="votes" />
-                    </Column>
-                  </Table>
-                ) : (
-                  <p>No polling options available.</p>
-                )}
-              </div>
+                    {hasVotedAlready[i]?.hasVoted
+                      ? "Already Voted"
+                      : "Click to Vote"}
+                  </RadioTile>
+                ))}
+              </RadioTileGroup>
             </Col>
           </Row>
         </Grid>

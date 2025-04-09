@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Container,
   Row,
@@ -13,22 +13,17 @@ import {
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
-import * as ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
 import { IconButton } from "rsuite";
-import DocPassIcon from "@rsuite/icons/DocPass";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import classNames from "classnames";
-import { Link } from "react-router-dom";
 import PaymentsService from "../../../services/payment.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
-import { MONTHS } from "../../../utilities/constants";
+import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
 import { formatDate } from "../../../utilities/formatDate";
-import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import { FaRegFilePdf } from "react-icons/fa";
 import {
   Document,
@@ -37,15 +32,20 @@ import {
   View,
   StyleSheet,
   Image,
-  pdf,
 } from "@react-pdf/renderer";
 import logoImage from "../../../assets/images/logo.jpg";
-import { capitalizeWords } from "../../../utilities/functions";
-import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
+import { numberToWords } from "../../../utilities/functions";
+import {
+  createPaymentReceiptPdf,
+  exportToExcel,
+} from "../../../utilities/ExportDataToExcelOrPDF";
+import societyService from "../../../services/society.service";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const PaymentReceiptDetail = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [PaymentsReceipt, setPaymentsReceipt] = useState([]);
+  const [societyInfo, setSocietyInfo] = useState("");
   const [month, setMonth] = useState(
     new Date().toLocaleString("default", { month: "long" })
   );
@@ -53,6 +53,7 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
   const [topAffixed, setTopAffixed] = useState(false);
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
+  const [pageError, setPageError] = useState("");
   const [sortColumn, setSortColumn] = useState();
   const [sortType, setSortType] = useState();
   const [loading, setLoading] = useState(false);
@@ -60,11 +61,6 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
     false,
     "null",
   ]);
-  const [paymentId, setPaymentId] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [deleteMessage, setDeleteMessage] = useState("");
-  const [deleteError, setDeleteError] = useState("");
-  const [deleteConsent, setDeleteConsent] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
 
@@ -73,26 +69,50 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
   }, [dispatch, pageTitle]);
 
   useEffect(() => {
+    fetchSocietyInfo();
     getPaymentsReceipt();
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  async function fetchSocietyInfo() {
+    setPageError("");
+    let respdata;
+
+    try {
+      const resp = await trackPromise(societyService.getSocietyById(societyId));
+      const { data } = resp;
+      if (data.success) {
+        respdata = data.society.societyName;
+      }
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching society detail";
+      toast.error(errMsg);
+      console.error("Fetch society detail catch => ", errMsg);
+      setPageError(errMsg);
+    }
+    setSocietyInfo(respdata);
+  }
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getPaymentsReceipt = async () => {
     setLoading(true);
-
+    let paymentReceipt = [];
     try {
       const resp = await trackPromise(
         PaymentsService.getAllPaymentReceipt(societyId)
       );
-      setPaymentsReceipt(resp.data.paymentReceipts);
-
+      const { data } = resp;
+      if (data.success) paymentReceipt = data.paymentReceipts;
       setLoading(false);
     } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch PaymentsReceipt", error);
+      const errMsg =
+        error?.response?.data?.message || "Error in fetching payment receipt";
+      toast.error(errMsg);
+      console.error("Failed to fetch PaymentsReceipt", errMsg);
+      setPageError(errMsg);
       setLoading(false);
     }
+    setPaymentsReceipt(paymentReceipt);
   };
 
   const generateReceipt = async (paymentReceiptDetailsId) => {
@@ -111,11 +131,13 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
     }
     setGenerateReceiptLoading([false, "null"]);
   };
+
   let filteredPaymentReceipts = PaymentsReceipt.filter((paymentReceipt) => {
     return (
       paymentReceipt.year === String(year) && paymentReceipt.month === month
     );
   });
+
   const getData = () => {
     if (!sortColumn || !sortType) {
       return filteredPaymentReceipts
@@ -188,38 +210,6 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
       onSuccess: () => toast.success("Export successful!"),
     });
   };
-  const handleCloseModal = () => {
-    setPaymentId({});
-    setDeleteMessage("");
-    setDeleteError("");
-    setModalOpen(false);
-  };
-
-  const deleteUser = async () => {
-    try {
-      const resp = await trackPromise(
-        PaymentsService.deletePaymentReceiptDetails(paymentId)
-      );
-      const { data } = resp.data;
-      if (data?.consentRequired) {
-        setDeleteConsent(true);
-        setDeleteMessage(data.message);
-      } else {
-        toast.success(
-          resp.data.message || "paymentReceipt detail deleted successfully"
-        );
-        handleCloseModal();
-
-        getPaymentsReceipt();
-      }
-    } catch (error) {
-      const errMsg =
-        error.response.data.message || "Error in deleting the user";
-      toast.error(errMsg);
-      setDeleteError(errMsg);
-      console.error("Delete paymentReceipt detail catch => ", error);
-    }
-  };
 
   const styles = StyleSheet.create({
     page: {
@@ -280,123 +270,14 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
     },
   });
 
-  function numberToWords(num) {
-    if (num === 0) return "zero only";
-
-    const ones = [
-      "",
-      "one",
-      "two",
-      "three",
-      "four",
-      "five",
-      "six",
-      "seven",
-      "eight",
-      "nine",
-    ];
-    const teens = [
-      "ten",
-      "eleven",
-      "twelve",
-      "thirteen",
-      "fourteen",
-      "fifteen",
-      "sixteen",
-      "seventeen",
-      "eighteen",
-      "nineteen",
-    ];
-    const tens = [
-      "",
-      "",
-      "twenty",
-      "thirty",
-      "forty",
-      "fifty",
-      "sixty",
-      "seventy",
-      "eighty",
-      "ninety",
-    ];
-
-    function convertHundred(n) {
-      let str = "";
-      if (n > 99) {
-        str += ones[Math.floor(n / 100)] + " hundred ";
-        n %= 100;
-      }
-      if (n > 0) {
-        if (n < 10) {
-          str += ones[n] + " ";
-        } else if (n < 20) {
-          str += teens[n - 10] + " ";
-        } else {
-          str += tens[Math.floor(n / 10)] + " ";
-          if (n % 10) {
-            str += ones[n % 10] + " ";
-          }
-        }
-      }
-      return str;
-    }
-
-    let result = "";
-
-    const billion = Math.floor(num / 1000000000);
-    if (billion) {
-      result += convertHundred(billion) + "billion ";
-      num %= 1000000000;
-    }
-
-    const million = Math.floor(num / 1000000);
-    if (million) {
-      result += convertHundred(million) + "million ";
-      num %= 1000000;
-    }
-
-    const thousand = Math.floor(num / 1000);
-    if (thousand) {
-      result += convertHundred(thousand) + "thousand ";
-      num %= 1000;
-    }
-
-    if (num > 0) {
-      result += convertHundred(num);
-    }
-    let fullWordString = capitalizeWords(result.trim() + " Only");
-    return fullWordString;
-  }
-
-  const createPaymentReceiptPdf = async (rowData) => {
-    try {
-      const pdfBlob = await pdf(
-        <PaymentReceiptPdf rowData={rowData} />
-      ).toBlob();
-
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = pdfUrl;
-      link.download = `PaymentReceipt_${rowData.flatNo}_${rowData.month}_${rowData.year}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast.error("Failed to generate PDF");
-    }
-  };
-
-  function PaymentReceiptPdf({ rowData }) {
-    const formattedDate = new Date(rowData.date).toLocaleDateString("en-GB");
+  function PaymentReceiptPdf({ data }) {
+    const formattedDate = new Date(data.date).toLocaleDateString("en-GB");
 
     return (
       <Document>
         <Page size="A4" style={styles.page}>
           {/* Header */}
-          <Text style={styles.header}>niraj</Text>
+          <Text style={styles.header}>{societyInfo}</Text>
 
           {/* Title */}
           <View
@@ -407,9 +288,9 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
             }}
           >
             <Text>
-              Payment Receipt For The Month of {rowData.month}, {rowData.year}
+              Payment Receipt For The Month of {data.month}, {data.year}
             </Text>
-            <Text>Flat No.: {rowData.flatNo}</Text>
+            <Text>Flat No.: {data.flatNo}</Text>
           </View>
 
           {/* Table */}
@@ -421,11 +302,11 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
           {/* Table Rows */}
           <View style={styles.tableRow}>
             <Text style={styles.particulars}>Payment Type:</Text>
-            <Text style={styles.values}>{rowData.paymentType}</Text>
+            <Text style={styles.values}>{data.paymentType}</Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.particulars}>Payment Mode:</Text>
-            <Text style={styles.values}>{rowData.paymentMode}</Text>
+            <Text style={styles.values}>{data.paymentMode}</Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.particulars}>Payment Date:</Text>
@@ -433,19 +314,19 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.particulars}>Bank Details:</Text>
-            <Text style={styles.values}>{rowData.bankDetails}</Text>
+            <Text style={styles.values}>{data.bankDetails}</Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.particulars}>Amount:</Text>
-            <Text style={styles.values}>{rowData.amount}</Text>
+            <Text style={styles.values}>{data.amount}</Text>
           </View>
 
           {/* Grand Total */}
-          <Text style={styles.grandTotal}>Grand Total: {rowData.amount}</Text>
+          <Text style={styles.grandTotal}>Grand Total: {data.amount}</Text>
 
           {/* Amount in Words */}
           <Text style={styles.amountInWords}>
-            Amount in Words: {numberToWords(rowData.amount)}
+            Amount in Words: {numberToWords(data.amount)}
           </Text>
 
           {/* Footer */}
@@ -467,14 +348,15 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
       </Document>
     );
   }
-  let currentYear = new Date().getFullYear();
-  let lastYear = currentYear - 1;
-  let nextYear = currentYear + 1;
-  let yearsData = [lastYear, currentYear, nextYear];
 
-  const years = yearsData.map((year) => {
-    return { label: year, value: year };
-  });
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return [currentYear - 1, currentYear, currentYear + 1].map((year) => ({
+      label: year,
+      value: year,
+    }));
+  }, []);
+
   const finalDataForTable = () => {
     const sortedData = getData();
     const start = limit * (page - 1);
@@ -578,7 +460,13 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
                       <IconButton
                         title="pdf"
                         icon={<FaRegFilePdf color={THEME[0].CLR_PRIMARY} />}
-                        onClick={() => createPaymentReceiptPdf(rowData)}
+                        onClick={() =>
+                          createPaymentReceiptPdf(
+                            PaymentReceiptPdf,
+                            rowData,
+                            `PaymentReceipt_${rowData.flatNo}_${rowData.month}_${rowData.year}.pdf`
+                          )
+                        }
                       />
                     </div>
                   )}
@@ -616,14 +504,7 @@ const PaymentReceiptDetail = ({ pageTitle }) => {
           />
         </div>
       </div>
-      <DeleteModal
-        isOpen={modalOpen}
-        onClose={handleCloseModal}
-        deleteAction={deleteUser}
-        deleteMsg={deleteMessage}
-        deleteErr={deleteError}
-        consentRequired={deleteConsent}
-      />
+      <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
     </Container>
   );
 };

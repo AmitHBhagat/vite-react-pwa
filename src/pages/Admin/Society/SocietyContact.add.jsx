@@ -151,7 +151,9 @@ function AddSocietyContact({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={16} md={6}>
               <Form.Group controlId="contactName">
-                <Form.ControlLabel>Contact Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Contact Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="contactName"
                   placeholder="Enter a Contact Name"
@@ -166,7 +168,9 @@ function AddSocietyContact({ pageTitle }) {
             </Col>
             <Col xs={16} md={6}>
               <Form.Group controlId="mobile">
-                <Form.ControlLabel>Mobile</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Mobile *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   name="mobile"
@@ -183,7 +187,9 @@ function AddSocietyContact({ pageTitle }) {
 
             <Col xs={16} md={6}>
               <Form.Group controlId="email">
-                <Form.ControlLabel>Email</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Email *
+                </Form.ControlLabel>
                 <Form.Control
                   name="email"
                   placeholder="Enter a email"
@@ -199,7 +205,9 @@ function AddSocietyContact({ pageTitle }) {
 
             <Col xs={16} md={6}>
               <Form.Group controlId="position">
-                <Form.ControlLabel>Position</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Position *
+                </Form.ControlLabel>
 
                 <InputPicker
                   block

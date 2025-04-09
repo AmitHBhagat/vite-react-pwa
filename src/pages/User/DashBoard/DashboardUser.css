@@ -1,0 +1,118 @@
+.dashboard-container .stats-panel {
+	background-color: white;
+	margin-bottom: 1rem;
+
+}
+
+.stats-panel .rs-panel-header {
+	color: var(--clr-primary);
+}
+
+.dashboard-container .stats-content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.dashboard-container .stat-title {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 1.8rem;
+}
+
+.dashboard-container .inline-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.dashboard-container .rs-carousel {
+	height: 18.75rem;
+}
+
+.dashboard-container .rs-carousel-slider-after,
+.rs-carousel-slider-item {
+	background-color: white !important;
+}
+
+.dashboard-container .para {
+	text-align: center;
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.dashboard-container .tbl-theme .vis-image {
+	width: 1.8rem;
+	height: 1.8rem;
+	object-fit: cover;
+	object-position: center;
+	border: 1px solid rgba(218, 215, 215, 0.543);
+}
+
+.dashboard-container .rs-carousel-label-wrapper label {
+	background-color: var(--clr-primary);
+	opacity: 0.5;
+}
+
+.dashboard-container .rs-carousel-label-wrapper input:checked ~ label {
+	background-color: var(--clr-primary);
+	opacity: 1;
+
+}
+
+/* .poll-card-group .rs-card-body {
+ padding: 0rem !important;
+} */
+
+.calenderEvent {
+	display: flex;
+	justify-content: center;
+}
+
+.meetList {
+	width: 28rem;
+}
+
+.meetList .meetInfo {
+	cursor: pointer;
+	font-size: 1rem;
+	color: var(--clr-primary);
+}
+
+.calendar-event-badge {
+	cursor: pointer;
+	background-color: var(--clr-primary) !important;
+}
+
+.dashboard-container .stats-panel-box {
+	border-radius: 12px;
+	color: white;
+	margin-bottom: 1rem;
+	padding: 10px;
+	overflow: hidden;
+}
+
+
+.rs-calendar-panel .rs-calendar-table-cell-is-today .rs-calendar-table-cell-day {
+	background-color: var(--clr-primary) !important;
+}
+
+.rs-calendar-panel .rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+	box-shadow: inset 0 0 0 1px var(--clr-primary) !important;
+
+}
+
+.dashboard-container .ListIcon {
+	display: flex;
+	justify-content: space-between;
+}
+
+.dashboard-container .icon-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--clr-primary);
+	width: 50px;
+	height: 50px;
+}

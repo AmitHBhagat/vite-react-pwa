@@ -13,6 +13,10 @@ class httpService {
   updateRequestDemo(id, data) {
     return httpClient.put(`${baseSlug}/requestDemo/${id}`, data);
   }
+
+  sendRequestDemo(payload) {
+    return httpClient.post(`${baseSlug}/requestDemo/`, payload);
+  }
 }
 
 export default new httpService();

@@ -37,6 +37,7 @@ import EditIcon from "@rsuite/icons/Edit";
 import { THEME } from "../../../utilities/theme";
 import TrashIcon from "@rsuite/icons/Trash";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const PollingsList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -66,7 +67,7 @@ const PollingsList = ({ pageTitle }) => {
     if (societyId) getPollings(societyId);
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getPollings = async (societyid) => {
     setPageError("");

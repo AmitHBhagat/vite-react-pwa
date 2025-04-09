@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Row,
@@ -13,8 +13,6 @@ import {
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
-import * as ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { IconButton } from "rsuite";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,8 +23,9 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
-import { MONTHS } from "../../../utilities/constants";
+import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const BillingDetail = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -39,6 +38,7 @@ const BillingDetail = ({ pageTitle }) => {
   const [topAffixed, setTopAffixed] = useState(false);
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
+  const [pageError, setPageError] = useState("");
   const [sortColumn, setSortColumn] = useState();
   const [sortType, setSortType] = useState();
   const [loading, setLoading] = useState(false);
@@ -53,22 +53,37 @@ const BillingDetail = ({ pageTitle }) => {
     getBills();
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBills = async () => {
+    setPageError("");
+    setLoading(true);
+    let maintenanceHeaders = [];
+    let bills = [];
     try {
       const resp = await trackPromise(
         BillsService.getBillsBySocietyId(societyId)
       );
-      setBills(resp.data.billings);
-      setMaintenanceHeaders(resp.data.maintenanceHeaders);
+      const { data } = resp;
+      if (data.success) {
+        bills = resp.data.billings;
+        maintenanceHeaders = resp.data.maintenanceHeaders;
+      }
+      setLoading(false);
     } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch bills", error);
+      const errMsg =
+        error?.response?.data?.message || "Error in fetching bills";
+      toast.error(errMsg);
+      console.error("Failed to fetch bills", errMsg);
+      setPageError(errMsg);
+      setLoading(false);
     }
+    setBills(bills);
+    setMaintenanceHeaders(maintenanceHeaders);
   };
 
   const generateBill = async () => {
+    setPageError("");
     try {
       setLoading(true);
       const payload = {
@@ -76,22 +91,30 @@ const BillingDetail = ({ pageTitle }) => {
         maintenanceMonth: month,
         maintenanceYear: year,
       };
-      const resp = await trackPromise(BillsService.generateBill(payload));
+      await trackPromise(BillsService.generateBill(payload));
 
       getBills();
       setLoading(false);
     } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to generate bills", error);
+      const errMsg = error?.response?.data?.message || "Error in generate bill";
+      toast.error(errMsg);
+      console.error("Failed to generate bills", errMsg);
+      setPageError(errMsg);
       setLoading(false);
     }
   };
   const notifyMembers = async () => {
     try {
-      await trackPromise(BillsService.notifyMembers(societyId));
+      const resp = await trackPromise(BillsService.notifyMembers(societyId));
+      const { data } = resp;
+      if (data.success)
+        toast.success("Notification sent to members successfully!");
     } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to generate bills", error);
+      const errMsg =
+        error?.response?.data?.message || "Error in notify members";
+      toast.error(errMsg);
+      console.error("Failed to generate bills", errMsg);
+      setPageError(errMsg);
     }
   };
 
@@ -405,6 +428,7 @@ const BillingDetail = ({ pageTitle }) => {
           />
         </div>
       </div>
+      <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
     </Container>
   );
 };

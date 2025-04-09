@@ -10,11 +10,13 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import StatusIndicator from "../../../components/StatusIndicator/StatusIndicator";
 import { capitalizeFirstLetter } from "../../../utilities/functions";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const FlatDetails = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const { flatId } = useParams();
-  const [flatDetails, setFlatDetails] = useState();
+  const [flatDetails, setFlatDetails] = useState([]);
+  const [pageError, setPageError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,20 +24,25 @@ const FlatDetails = ({ pageTitle }) => {
   }, [dispatch, pageTitle]);
 
   useEffect(() => {
-    async function fetchFlatDetails() {
-      try {
-        const resp = await trackPromise(flatService.getFlatById(flatId));
-        const { data } = resp;
-        if (data.success) {
-          setFlatDetails(data.flat);
-        }
-      } catch (err) {
-        toast.error(err?.response?.data?.message);
-        console.error("Fetch flat details catch => ", err);
-      }
-    }
     fetchFlatDetails();
   }, [flatId]);
+
+  async function fetchFlatDetails() {
+    setPageError("");
+    let flatDetails = [];
+    try {
+      const resp = await trackPromise(flatService.getFlatById(flatId));
+      const { data } = resp;
+      if (data.success) flatDetails = data?.flat;
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching flat Details";
+      toast.error(errMsg);
+      console.error("Fetch flat details catch => ", err);
+      setPageError(errMsg);
+    }
+    setFlatDetails(flatDetails);
+  }
 
   if (!flatDetails) {
     return <div>Loading...</div>;
@@ -145,6 +152,7 @@ const FlatDetails = ({ pageTitle }) => {
             </Col>
           </Row>
         </Grid>
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </>
   );

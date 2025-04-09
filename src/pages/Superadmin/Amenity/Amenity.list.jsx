@@ -30,6 +30,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import classNames from "classnames";
 import { THEME } from "../../../utilities/theme";
 import "./Amenity.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const AmentityList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -52,7 +53,7 @@ const AmentityList = ({ pageTitle }) => {
     getAmenities();
   }, [dispatch, pageTitle]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getAmenities = async () => {
     try {

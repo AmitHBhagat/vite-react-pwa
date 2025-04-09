@@ -35,6 +35,7 @@ import { useSmallScreen } from "../../utilities/useWindowSize";
 import ProfileAvatar from "../../assets/images/avtar.png";
 import { THEME } from "../../utilities/theme";
 import "./header.css";
+import { BREAK_POINTS } from "../../utilities/constants";
 
 // Function to render Admin speaker
 const renderProfileSpeaker =
@@ -151,7 +152,7 @@ const renderNotifSpeaker =
       onClose();
     };
 
-    const isSmallScreen = useSmallScreen(768);
+    const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
     return (
       <Popover
@@ -162,7 +163,7 @@ const renderNotifSpeaker =
       >
         <div
           style={{
-            maxHeight: isScrollable ? "500px" : "auto",
+            maxHeight: isScrollable ? "31.25rem" : "auto",
             overflowY: isScrollable ? "scroll" : "visible",
           }}
         >
@@ -328,8 +329,8 @@ const Header = ({ user }) => {
             size="lg"
             circle
             src={
-              authState?.user?.assetsDir && authState?.user?.profileImage
-                ? `${EnvConfig.MediaBase}/${authState.user.assetsDir}/${authState.user.profileImage}`
+              authState?.user?.avatar?.url
+                ? authState?.user?.avatar?.url
                 : ProfileAvatar
             }
             alt="User Avatar"

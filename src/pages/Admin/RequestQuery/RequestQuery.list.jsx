@@ -29,6 +29,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { THEME } from "../../../utilities/theme";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const RequestQueries = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -56,7 +57,7 @@ const RequestQueries = ({ pageTitle }) => {
     getRequestQueries();
   }, []);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getRequestQueries = async () => {
     try {

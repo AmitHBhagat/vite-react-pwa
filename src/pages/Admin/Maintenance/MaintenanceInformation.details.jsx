@@ -11,12 +11,13 @@ import { Table } from "rsuite";
 import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
 import StatusIndicator from "../../../components/StatusIndicator/StatusIndicator";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const MaintenanceDetails = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [maintenanceDetails, setMaintenanceDetails] = useState({});
   const [finalTableArray, setFinalTableArray] = useState([]);
-
+  const [pageError, setPageError] = useState("");
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
 
@@ -27,24 +28,28 @@ const MaintenanceDetails = ({ pageTitle }) => {
 
   useEffect(() => {
     if (societyId) {
-      async function fetchMaintenanceDetails() {
-        try {
-          const res = await trackPromise(
-            maintenanceMasterService.getMaintenanceById(societyId)
-          );
-          const maintenanceData = res.data;
-          if (maintenanceData.success) {
-            setMaintenanceDetails(maintenanceData.maintenance[0]);
-          }
-        } catch (err) {
-          toast.error(err?.response?.data?.message);
-          console.error("Error fetching maintenance details:", err);
-        }
-      }
       fetchMaintenanceDetails();
     }
   }, [societyId]);
 
+  async function fetchMaintenanceDetails() {
+    setPageError("");
+    let maintenanceDetails = {};
+    try {
+      const res = await trackPromise(
+        maintenanceMasterService.getMaintenanceById(societyId)
+      );
+      const { data } = res;
+      if (data.success) maintenanceDetails = data.maintenance[0];
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message || "Error in fetching maintenance details";
+      toast.error(errMsg);
+      console.error("Error fetching maintenance details:", errMsg);
+      setPageError(errMsg);
+    }
+    setMaintenanceDetails(maintenanceDetails);
+  }
   useEffect(() => {
     if (
       maintenanceDetails &&
@@ -203,6 +208,7 @@ const MaintenanceDetails = ({ pageTitle }) => {
           </Col>
         </Row>
       </div>
+      <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
     </Container>
   );
 };

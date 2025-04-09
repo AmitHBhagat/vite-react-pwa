@@ -126,6 +126,14 @@ const LoginModal = ({ open, onClose }) => {
   }
 
   async function handleSendOtp() {
+    if (import.meta.env.DEV) {
+      setDisablePhone(true);
+      setFieldValue("session_id", "dummySessionId");
+      setShowOtp(true);
+      setSendOtp(false);
+      return;
+    }
+
     setServerError("");
     try {
       setLoading(true);
@@ -162,7 +170,12 @@ const LoginModal = ({ open, onClose }) => {
       const resp =
         activeKey === "admin"
           ? await trackPromise(AdminService.login(values))
-          : await trackPromise(UserService.verifyOTP(values));
+          : await trackPromise(
+              UserService.verifyOTP({
+                ...values,
+                isTestMode: import.meta.env.DEV,
+              })
+            );
       setLoading(false);
       if (resp?.data?.success) {
         const { token, user } = resp.data;

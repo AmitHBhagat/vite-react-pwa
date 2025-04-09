@@ -27,6 +27,7 @@ import { formatDate } from "../../../utilities/formatDate";
 import StatusIndicator from "../../../components/StatusIndicator/StatusIndicator";
 import reportService from "../../../services/report.service";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const LeaseHoldFlatsList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -122,7 +123,7 @@ const LeaseHoldFlatsList = ({ pageTitle }) => {
     setLimit(dataKey);
   };
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   return (
     <Container className="leaseHoldFlats-container">

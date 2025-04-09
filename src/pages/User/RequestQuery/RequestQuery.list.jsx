@@ -29,6 +29,7 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const RequestQueryList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -54,7 +55,7 @@ const RequestQueryList = ({ pageTitle }) => {
       getQueries(authState.selectedFlat.societyId);
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getQueries = async (societyid) => {
     setPageError("");

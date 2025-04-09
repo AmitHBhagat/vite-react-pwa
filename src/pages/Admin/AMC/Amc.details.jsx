@@ -45,6 +45,10 @@ function AmcDetail({ pageTitle }) {
     setAmcDetail(respdata);
   }
 
+  function navigateBack() {
+    navigate(-1);
+  }
+
   return (
     <>
       <ScrollToTop />
@@ -53,7 +57,8 @@ function AmcDetail({ pageTitle }) {
         <FlexboxGrid justify="end" className="topfeaturebar">
           <FlexboxGrid.Item>
             <Button
-              onClick={() => navigate("/amc")}
+              // onClick={() => navigate("/amc")}
+              onClick={navigateBack}
               appearance="ghost"
               color="blue"
             >

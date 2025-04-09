@@ -15,6 +15,8 @@ import {
   Whisper,
   Tooltip,
   IconButton,
+  DateRangePicker,
+  InputPicker,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
@@ -26,6 +28,7 @@ import { toast } from "react-toastify";
 import classNames from "classnames";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import VisitorService from "../../../services/visitor.service";
+import FlatManagementService from "../../../services/flat.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
@@ -33,6 +36,7 @@ import { formatDateTime } from "../../../utilities/formatDate";
 import EditIcon from "@rsuite/icons/Edit";
 import TrashIcon from "@rsuite/icons/Trash";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VisitorListAdmin = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -49,6 +53,9 @@ const VisitorListAdmin = ({ pageTitle }) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedVisitor, setSelectedVisitor] = useState();
+  const [flats, setFlats] = useState([]);
+  const [dateRange, setDateRange] = useState(null);
+  const [selectedFlatId, setSelectedFlatId] = useState("");
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -56,18 +63,19 @@ const VisitorListAdmin = ({ pageTitle }) => {
 
   useEffect(() => {
     if (societyId) {
+      getFlats(societyId);
       getVisitors(societyId);
     }
-  }, [authState.selectedFlat]);
+  }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVisitors = async (societyId) => {
     setPageError("");
     let respData = [];
     try {
       const resp = await trackPromise(
-        VisitorService.getSocietyVisitors(societyId)
+        VisitorService.getSocietyVisitors(societyId, dateRange)
       );
       const { data } = resp;
       if (data.success) respData = resp.data.visitors;
@@ -79,6 +87,18 @@ const VisitorListAdmin = ({ pageTitle }) => {
       setPageError(errMsg);
     }
     setVisitors(respData);
+  };
+
+  const getFlats = async (societyId) => {
+    try {
+      const resp = await trackPromise(
+        FlatManagementService.getFlatsBySocietyId(societyId)
+      );
+      setFlats(resp.data.flats);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error("Failed to fetch flats", error);
+    }
   };
 
   const getData = () => {
@@ -148,6 +168,28 @@ const VisitorListAdmin = ({ pageTitle }) => {
                   <SearchIcon />
                 </InputGroup.Button>
               </InputGroup>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item style={{ display: "flex", gap: "1rem" }}>
+              <InputPicker
+                block
+                placeholder="Select flat"
+                data={flats.map((flats) => ({
+                  label: flats.flatNo,
+                  value: flats._id,
+                }))}
+                value={selectedFlatId}
+                onChange={setSelectedFlatId}
+              />
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="Select date range"
+                format="dd/MM/yyyy"
+                block
+              />
+              <Button appearance="primary" onClick={getVisitors}>
+                Show
+              </Button>
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Affix>

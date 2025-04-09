@@ -138,7 +138,9 @@ function AddExpenseCategory({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="categoryName">
-                <Form.ControlLabel>Category Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Category Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="categoryName"
                   placeholder="Enter a Category Name"

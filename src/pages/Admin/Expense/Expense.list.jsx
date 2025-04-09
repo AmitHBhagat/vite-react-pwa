@@ -29,7 +29,7 @@ import ExpenseService from "../../../services/expense.service.js";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
-import { MONTHS } from "../../../utilities/constants";
+import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
 import { THEME } from "../../../utilities/theme";
 import { formatDate } from "../../../utilities/formatDate";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
@@ -89,7 +89,7 @@ const Expense = ({ pageTitle }) => {
     }
   };
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getData = () => {
     let filteredExpenseDetails = currentExpenses.filter(

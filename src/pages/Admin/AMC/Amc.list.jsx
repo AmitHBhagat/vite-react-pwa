@@ -34,6 +34,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { THEME } from "../../../utilities/theme";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const AmcList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const AmcList = ({ pageTitle }) => {
     getAmcs();
   }, [dispatch, pageTitle]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getAmcs = async () => {
     setPageError("");

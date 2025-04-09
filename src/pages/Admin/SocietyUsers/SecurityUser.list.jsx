@@ -31,6 +31,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import classNames from "classnames";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import "../../Superadmin/AdminUsers/user.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const SecurityUserList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -60,12 +61,14 @@ const SecurityUserList = ({ pageTitle }) => {
   const getSecurityUsers = async () => {
     try {
       const resp = await trackPromise(adminService.getUsers());
-      const admindata = resp.data.adminUsers;
-      const allAdmins = admindata.filter((user) => user.role === "security");
-      const societyAdmins = allAdmins.filter(
-        (user) => user.societyName?._id === societyId
-      );
-      setSecurityUsers(societyAdmins);
+      if (resp.data.success) {
+        const admindata = resp.data.adminUsers;
+        const allAdmins = admindata.filter((user) => user.role === "security");
+        const societyAdmins = allAdmins.filter(
+          (user) => user.societyName?._id === societyId
+        );
+        setSecurityUsers(societyAdmins);
+      }
     } catch (err) {
       const errMsg =
         err?.response?.data?.message || "Error fetching the security users";
@@ -171,7 +174,7 @@ const SecurityUserList = ({ pageTitle }) => {
     setSelectedSecurity("");
   };
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   return (
     <Container className="users-container">

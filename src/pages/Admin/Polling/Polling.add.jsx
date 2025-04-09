@@ -197,7 +197,9 @@ function AddPolling({ pageTitle = "Add Polling" }) {
           <Row gutter={20}>
             <Col xs={24} md={12}>
               <Form.Group controlId="pollDescription">
-                <Form.ControlLabel>Poll Description</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Poll Description *
+                </Form.ControlLabel>
 
                 <Form.Control
                   name="pollDescription"
@@ -252,7 +254,9 @@ function AddPolling({ pageTitle = "Add Polling" }) {
           <Row>
             <Col xs={24} md={12}>
               <Form.Group controlId="pollOptions">
-                <Form.ControlLabel>Poll Options</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Poll Options *
+                </Form.ControlLabel>
                 {frmObj.values.pollOptions.map((optionObj, index) => (
                   <FlexboxGrid
                     align="middle"

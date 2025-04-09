@@ -148,7 +148,9 @@ function AddEditNotice({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={16} md={12}>
               <Form.Group controlId="title">
-                <Form.ControlLabel>Title</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Title *
+                </Form.ControlLabel>
                 <Form.Control
                   name="title"
                   placeholder="Enter a title"
@@ -181,7 +183,9 @@ function AddEditNotice({ pageTitle }) {
 
             <Col xs={16} md={12}>
               <Form.Group controlId="commments">
-                <Form.ControlLabel>Comments</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Comments *
+                </Form.ControlLabel>
                 <Form.Control
                   name="commments"
                   accepter={ReactQuill}

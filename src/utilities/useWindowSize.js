@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BREAK_POINTS } from "./constants";
 
 export const useWindowSize = () => {
   const [windowSize, setWindowSize] = useState({
@@ -21,7 +22,7 @@ export const useWindowSize = () => {
   return windowSize;
 };
 
-export const useSmallScreen = (breakpoint = 768) => {
+export const useSmallScreen = (breakpoint = BREAK_POINTS.MD) => {
   if (typeof window === "undefined") return false;
   return window.innerWidth < breakpoint;
 };

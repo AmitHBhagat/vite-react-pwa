@@ -153,7 +153,9 @@ function AddEditMeeting({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={16} md={12}>
               <Form.Group controlId="title">
-                <Form.ControlLabel>Meeting Type</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Meeting Type *
+                </Form.ControlLabel>
 
                 <InputPicker
                   block
@@ -192,7 +194,9 @@ function AddEditMeeting({ pageTitle }) {
 
             <Col xs={16} md={12}>
               <Form.Group controlId="meetingAgenda">
-                <Form.ControlLabel>Meeting Agenda</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Meeting Agenda *
+                </Form.ControlLabel>
                 <Form.Control
                   name="meetingAgenda"
                   accepter={ReactQuill}

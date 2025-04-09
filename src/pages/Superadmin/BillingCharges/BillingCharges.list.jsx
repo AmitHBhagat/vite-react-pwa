@@ -30,6 +30,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import "./billingCharges.css";
 import "../../../layouts/ProtectedLayout.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 const BillsList = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const toaster = useToaster();
@@ -145,7 +146,7 @@ const BillsList = ({ pageTitle }) => {
     }
   }
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   return (
     <Container className="">

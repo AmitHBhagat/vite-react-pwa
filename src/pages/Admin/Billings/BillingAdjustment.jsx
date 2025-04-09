@@ -32,6 +32,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import classNames from "classnames";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const BillingAdjustments = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -62,7 +63,7 @@ const BillingAdjustments = ({ pageTitle }) => {
     }
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   async function fetchBillingAdjust() {
     try {

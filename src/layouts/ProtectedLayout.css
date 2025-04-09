@@ -171,6 +171,10 @@ body.body-protected .details-grp .val .negate {
 	color: var(--clr-negate);
 }
 
+body.body-protected .details-grp .val.desc {
+	word-break: break-word;
+}
+
 /* Modal styles */
 body.body-protected .rs-modal.thm-modal .rs-modal-title {
 	font-size: 1.2rem;
@@ -299,9 +303,33 @@ body.body-protected .ellipsis-text {
 }
 
 body.body-protected .tbl-theme .visitor-image {
-	width: 45px;
-	height: 45px;
+	width: 2.8rem;
+	height: 2.8rem;
 	object-fit: cover;
 	object-position: center;
-	border: 1px solid rgba(218, 215, 215, 0.543);
+	border: 0.06rem solid var(--clr-grey-05);
+}
+
+body.body-protected .profile-grid .profile-image {
+	width: 9.4rem;
+	height: 9.4rem;
+	object-fit: cover;
+	object-position: center;
+	border: 0.125rem solid var(--clr-grey-05);
+	border-radius: 50%;
+}
+
+body.body-protected .thm-header .rs-avatar .rs-avatar-image {
+	object-fit: cover;
+	object-position: center;
+	border: 0.06rem solid var(--clr-grey-06);
+	border-radius: 50%;
+}
+
+body.body-protected .flxgrid-theme .date-picker {
+	margin-left: 1rem;
+}
+
+body.body-protected .rs-modal.thm-modal .visitor-grid {
+	overflow: hidden;
 }

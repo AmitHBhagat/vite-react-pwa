@@ -221,7 +221,9 @@ function SocietyInfoEdit({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} lg={8} xl={12}>
               <Form.Group controlId="societyName">
-                <Form.ControlLabel>Society Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyName"
                   placeholder="Enter Society Name"
@@ -236,7 +238,9 @@ function SocietyInfoEdit({ pageTitle }) {
             </Col>
             <Col xs={24} lg={16} xl={12}>
               <Form.Group controlId="societyAddress">
-                <Form.ControlLabel>Society Address</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Address *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyAddress"
                   placeholder="Enter Society Address"
@@ -253,7 +257,9 @@ function SocietyInfoEdit({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="societyUrl">
-                <Form.ControlLabel>Society URL</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society URL *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyUrl"
                   placeholder="Enter Society URL"
@@ -268,7 +274,9 @@ function SocietyInfoEdit({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="societyEmail">
-                <Form.ControlLabel>Society Email</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Email *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyEmail"
                   placeholder="Enter Society Email"
@@ -283,7 +291,9 @@ function SocietyInfoEdit({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="societyRegistrationNo">
-                <Form.ControlLabel>Society Registration No.</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Registration No. *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyRegistrationNo"
                   placeholder="Enter Society Registration No."
@@ -298,7 +308,9 @@ function SocietyInfoEdit({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="societyMembersCount">
-                <Form.ControlLabel>Society Members Count</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Members Count *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyMembersCount"
                   placeholder="Enter Society Members Count"
@@ -314,7 +326,9 @@ function SocietyInfoEdit({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="societyActivationYear">
-                <Form.ControlLabel>Society Activation Year</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Activation Year *
+                </Form.ControlLabel>
                 <Form.Control
                   name="societyActivationYear"
                   placeholder="Enter Society Activation Year"

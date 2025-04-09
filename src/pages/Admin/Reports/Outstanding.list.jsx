@@ -28,6 +28,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const OutstandingList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -51,7 +52,7 @@ const OutstandingList = ({ pageTitle }) => {
     if (societyId) fetchOutstanding(societyId);
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const fetchOutstanding = async (societyId) => {
     setPageError("");

@@ -37,6 +37,7 @@ import parse from "html-react-parser";
 import CheckOutlineIcon from "@rsuite/icons/CheckOutline";
 import CloseOutlineIcon from "@rsuite/icons/CloseOutline";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { BREAK_POINTS } from "../../../utilities/constants.js";
 
 const NoticeList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -66,7 +67,7 @@ const NoticeList = ({ pageTitle }) => {
     if (societyId) fetchNotices(societyId);
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const fetchNotices = async (societyId) => {
     setPageError("");

@@ -15,6 +15,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import { THEME } from "../../../utilities/theme";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const BillingList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -37,7 +38,7 @@ const BillingList = ({ pageTitle }) => {
       getBills();
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBills = async () => {
     try {

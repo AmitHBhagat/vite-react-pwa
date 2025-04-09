@@ -181,7 +181,9 @@ function AddEditVendor({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="vendorType">
-                <Form.ControlLabel>Vendor Type</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Vendor Type *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="vendorType"
@@ -198,7 +200,9 @@ function AddEditVendor({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="vendorName">
-                <Form.ControlLabel>Vendor Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Vendor Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="vendorName"
                   placeholder="Enter a Vender Name."
@@ -228,7 +232,9 @@ function AddEditVendor({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="vendorMobile">
-                <Form.ControlLabel>Vendor Mobile</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Vendor Mobile *
+                </Form.ControlLabel>
                 <Form.Control
                   type="number"
                   name="vendorMobile"

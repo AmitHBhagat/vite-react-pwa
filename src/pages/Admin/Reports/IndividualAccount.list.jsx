@@ -33,6 +33,7 @@ import reportService from "../../../services/report.service";
 import { FiExternalLink } from "react-icons/fi";
 import BillAdjustmentDetailModal from "./BillingAdjustment.detail.modal";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const IndividualAccountList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -94,7 +95,7 @@ const IndividualAccountList = ({ pageTitle }) => {
       }
     },
   });
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getFlats = async () => {
     let flats = [];
@@ -232,17 +233,6 @@ const IndividualAccountList = ({ pageTitle }) => {
       console.error(error);
     }
   };
-
-  let currentYear = new Date().getFullYear();
-  let lastYear = currentYear - 1;
-  let nextYear = currentYear + 1;
-  let yearsData = [lastYear, currentYear, nextYear];
-
-  const years = useMemo(() => {
-    yearsData.map((year) => {
-      return { label: year, value: year };
-    });
-  }, [year]);
 
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);

@@ -209,7 +209,9 @@ function AddEditExpense({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="expenseType">
-                <Form.ControlLabel>Cash Details Type</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Cash Details Type *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="expenseType"
@@ -226,7 +228,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="expenseCategory">
-                <Form.ControlLabel>Cash Expense Category</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Cash Expense Category *
+                </Form.ControlLabel>
 
                 <InputPicker
                   block
@@ -250,7 +254,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="expenseDescription">
-                <Form.ControlLabel>Description</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Description *
+                </Form.ControlLabel>
                 <Form.Control
                   name="expenseDescription"
                   placeholder="Enter a Expense Description"
@@ -265,7 +271,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="paymentMode">
-                <Form.ControlLabel>Payment Mode</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Payment Mode *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="paymentMode"
@@ -282,7 +290,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="expenseBillVoucherNo">
-                <Form.ControlLabel>Bill No.</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Bill No. *
+                </Form.ControlLabel>
                 <Form.Control
                   name="expenseBillVoucherNo"
                   placeholder="Enter a Bill No."
@@ -297,7 +307,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="amount">
-                <Form.ControlLabel>Amount</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Amount *
+                </Form.ControlLabel>
                 <Form.Control
                   name="amount"
                   placeholder="Enter a Amount"
@@ -329,7 +341,9 @@ function AddEditExpense({ pageTitle }) {
 
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="approvedBy">
-                <Form.ControlLabel>ApprovedBy</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  ApprovedBy *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="approvedBy"
@@ -352,7 +366,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="month">
-                <Form.ControlLabel>Month</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Month *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="month"
@@ -388,7 +404,9 @@ function AddEditExpense({ pageTitle }) {
             </Col>
             <Col xs={24} md={12} lg={8} xl={6}>
               <Form.Group controlId="transactionDetails">
-                <Form.ControlLabel>Transaction Details</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Transaction Details *
+                </Form.ControlLabel>
                 <Form.Control
                   name="transactionDetails"
                   placeholder="Enter a Transaction Details"

@@ -144,7 +144,9 @@ function SecurityAddUser({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={16} md={6}>
               <Form.Group controlId="userName">
-                <Form.ControlLabel>User Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  User Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="userName"
                   placeholder="Enter Full Name"
@@ -160,7 +162,9 @@ function SecurityAddUser({ pageTitle }) {
             {!userDetails._id && (
               <Col xs={16} md={6}>
                 <Form.Group controlId="password">
-                  <Form.ControlLabel>Password</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Password *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="password"
                     placeholder="Enter user Password"

@@ -37,6 +37,7 @@ import parse from "html-react-parser";
 import CheckOutlineIcon from "@rsuite/icons/CheckOutline";
 import CloseOutlineIcon from "@rsuite/icons/CloseOutline";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const MeetingList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -63,7 +64,7 @@ const MeetingList = ({ pageTitle }) => {
     getMeetings();
   }, [dispatch, pageTitle]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getMeetings = async () => {
     setPageError("");

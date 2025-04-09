@@ -172,7 +172,9 @@ function AddBillingAdjustment({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} lg={8} xl={6}>
               <Form.Group controlId="flatId">
-                <Form.ControlLabel>Flat No.</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Flat No. *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="flatId"
@@ -195,7 +197,9 @@ function AddBillingAdjustment({ pageTitle }) {
             </Col>
             <Col xs={24} lg={8} xl={6}>
               <Form.Group controlId="adjustmentType">
-                <Form.ControlLabel>Adjustment Type</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Adjustment Type *
+                </Form.ControlLabel>
                 <InputPicker
                   block
                   name="adjustmentType"
@@ -212,7 +216,9 @@ function AddBillingAdjustment({ pageTitle }) {
             </Col>
             <Col xs={24} lg={8} xl={6}>
               <Form.Group controlId="adjustmentDescription">
-                <Form.ControlLabel>Adjustment Description</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Adjustment Description *
+                </Form.ControlLabel>
 
                 <Form.Control
                   name="adjustmentDescription"
@@ -230,7 +236,9 @@ function AddBillingAdjustment({ pageTitle }) {
             </Col>
             <Col xs={24} lg={8} xl={6}>
               <Form.Group controlId="amount">
-                <Form.ControlLabel>Amount</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Amount *
+                </Form.ControlLabel>
                 <Form.Control
                   name="amount"
                   placeholder="Enter amount"

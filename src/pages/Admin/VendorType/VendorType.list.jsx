@@ -35,6 +35,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VendorTypeList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -64,7 +65,7 @@ const VendorTypeList = ({ pageTitle }) => {
       getVendorTypes(authState.user.societyName);
   }, [authState?.user?.societyName]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVendorTypes = async (societyid) => {
     setPageError("");
@@ -390,7 +391,9 @@ const ModalForm = ({
             <Row gutter={0}>
               <Col xs={24}>
                 <Form.Group controlId="vendorTypeName">
-                  <Form.ControlLabel>Vendor Type Name</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Vendor Type Name *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="vendorTypeName"
                     placeholder="Enter vendor type name"

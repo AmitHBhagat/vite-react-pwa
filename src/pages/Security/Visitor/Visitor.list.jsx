@@ -15,6 +15,7 @@ import {
   Whisper,
   Tooltip,
   IconButton,
+  DateRangePicker,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
@@ -33,6 +34,7 @@ import { formatDateTime } from "../../../utilities/formatDate";
 import EditIcon from "@rsuite/icons/Edit";
 import TrashIcon from "@rsuite/icons/Trash";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VisitorList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -53,6 +55,7 @@ const VisitorList = ({ pageTitle }) => {
   const [deleteConsent, setDeleteConsent] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [dateRange, setDateRange] = useState(null);
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -64,7 +67,7 @@ const VisitorList = ({ pageTitle }) => {
     }
   }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVisitors = async (societyId) => {
     setPageError("");
@@ -86,19 +89,30 @@ const VisitorList = ({ pageTitle }) => {
   };
 
   const getData = () => {
-    let filteredList = visitors.filter((itm) =>
-      itm.visitorName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let filteredList = visitors.filter((itm) => {
+      const matchName = itm.visitorName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      const createdAt = new Date(itm.createdAt);
+      const matchDate = dateRange
+        ? createdAt >= new Date(dateRange[0].setHours(0, 0, 0, 0)) &&
+          createdAt <= new Date(dateRange[1].setHours(23, 59, 59, 999))
+        : true;
+
+      return matchName && matchDate;
+    });
 
     if (sortColumn && sortType) {
       filteredList.sort((a, b) => {
         let x = a[sortColumn];
         let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
+        if (sortColumn === "createdAt") {
+          x = new Date(x);
+          y = new Date(y);
+        } else {
+          if (typeof x === "string") x = x.toLowerCase();
+          if (typeof y === "string") y = y.toLowerCase();
         }
         return sortType === "asc" ? x - y : y - x;
       });
@@ -177,16 +191,28 @@ const VisitorList = ({ pageTitle }) => {
         <Affix onChange={setTopAffixed}>
           <FlexboxGrid justify="space-between" className="flxgrid-theme">
             <FlexboxGrid.Item className="filters-row section-mb">
-              <InputGroup inside>
-                <Input
-                  placeholder="Search by visitor name..."
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                />
-                <InputGroup.Button>
-                  <SearchIcon />
-                </InputGroup.Button>
-              </InputGroup>
+              <FlexboxGrid>
+                <FlexboxGrid.Item>
+                  <InputGroup inside>
+                    <Input
+                      placeholder="Search by visitor name..."
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                    />
+                    <InputGroup.Button>
+                      <SearchIcon />
+                    </InputGroup.Button>
+                  </InputGroup>
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item>
+                  <DateRangePicker
+                    placeholder="Filter by Date"
+                    value={dateRange}
+                    onChange={setDateRange}
+                    className="date-picker"
+                  />
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
             </FlexboxGrid.Item>
             <FlexboxGrid.Item>
               <Link to={`/visitors/add`}>
@@ -213,6 +239,33 @@ const VisitorList = ({ pageTitle }) => {
               rowHeight={50}
               className="tbl-theme tbl-compact"
             >
+              <Column sortable width={180}>
+                <HeaderCell>Date & Time</HeaderCell>
+                <Cell dataKey="createdAt">
+                  {(rowData) => formatDateTime(rowData.createdAt)}
+                </Cell>
+              </Column>
+              <Column width={80}>
+                <HeaderCell>Flat No</HeaderCell>
+                <Cell dataKey="flat.flatNo" />
+              </Column>
+              <Column sortable flexGrow={2}>
+                <HeaderCell>Visitor Name</HeaderCell>
+                <Cell dataKey="visitorName">
+                  {(rowData) => (
+                    <Whisper
+                      trigger="hover"
+                      placement="topEnd"
+                      controlId={rowData._id}
+                      speaker={<Tooltip>More details</Tooltip>}
+                    >
+                      <Link onClick={() => handleOpenModal(rowData)}>
+                        {rowData.visitorName}
+                      </Link>
+                    </Whisper>
+                  )}
+                </Cell>
+              </Column>
               <Column width={100} sortable>
                 <HeaderCell>Image</HeaderCell>
                 <Cell dataKey="societyImage">
@@ -232,27 +285,6 @@ const VisitorList = ({ pageTitle }) => {
                   }}
                 </Cell>
               </Column>
-              <Column sortable flexGrow={2}>
-                <HeaderCell>Visitor Name</HeaderCell>
-                <Cell dataKey="visitorName">
-                  {(rowData) => (
-                    <Whisper
-                      trigger="hover"
-                      placement="topEnd"
-                      controlId={rowData._id}
-                      speaker={<Tooltip>More details</Tooltip>}
-                    >
-                      <Link onClick={() => handleOpenModal(rowData)}>
-                        {rowData.visitorName}
-                      </Link>
-                    </Whisper>
-                  )}
-                </Cell>
-              </Column>
-              <Column width={80}>
-                <HeaderCell>Flat No</HeaderCell>
-                <Cell dataKey="flat.flatNo" />
-              </Column>
               <Column width={130}>
                 <HeaderCell>Phone</HeaderCell>
                 <Cell dataKey="visitorPhone" />
@@ -260,12 +292,6 @@ const VisitorList = ({ pageTitle }) => {
               <Column width={130}>
                 <HeaderCell>Flat Contact</HeaderCell>
                 <Cell dataKey="flatContact" />
-              </Column>
-              <Column width={180}>
-                <HeaderCell>Date & Time</HeaderCell>
-                <Cell dataKey="createdAt">
-                  {(rowData) => formatDateTime(rowData.createdAt)}
-                </Cell>
               </Column>
               <Column width={130} align="center" className="col-action">
                 <HeaderCell>Actions</HeaderCell>
@@ -355,51 +381,48 @@ const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
         <Modal.Title>Visitor Details</Modal.Title>
       </Modal.Header>
       <Modal.Body className="pd-b-0">
-        <Grid fluid>
-          <Row gutter={0}>
-            <Col xs={24} md={12}>
+        <Grid fluid className="visitor-grid">
+          <Row gutter={16}>
+            <Col xs={24} md={15}>
               <div className="details-grp">
                 <div className="lbl">Visitor Name</div>
                 <div className="val">{dataObj.visitorName}</div>
               </div>
-            </Col>
-            <Col xs={24} md={12}>
               <div className="details-grp">
-                <div className="lbl">Vistor Phone</div>
+                <div className="lbl">Visitor Phone</div>
                 <div className="val">{dataObj.visitorPhone}</div>
               </div>
-            </Col>
-            <Col xs={24} md={12}>
               <div className="details-grp">
                 <div className="lbl">Flat No</div>
                 <div className="val">{dataObj.flat.flatNo}</div>
               </div>
-            </Col>
-            <Col xs={24} md={12}>
               <div className="details-grp">
                 <div className="lbl">Flat Contact</div>
                 <div className="val">{dataObj.flatContact}</div>
               </div>
+              <div className="details-grp">
+                <div className="lbl">Description</div>
+                <div className="val desc">{dataObj.description}</div>
+              </div>
             </Col>
-            {dataObj.visitorImage?.fileurl && (
-              <Col xs={24}>
+
+            <Col xs={24} md={9}>
+              {dataObj.visitorImage?.fileurl ? (
                 <div className="details-grp">
                   <div className="lbl">Visitor Image</div>
                   <div className="val">
                     <img
                       src={dataObj.visitorImage.fileurl}
                       alt={dataObj.visitorImage.title}
-                      style={{ maxWidth: "200px", maxHeight: "200px" }}
                     />
                   </div>
                 </div>
-              </Col>
-            )}
-            <Col xs={24}>
-              <div className="details-grp">
-                <div className="lbl">Description</div>
-                <div className="val">{dataObj.description}</div>
-              </div>
+              ) : (
+                <div className="details-grp">
+                  <div className="lbl">Visitor Image</div>
+                  <div className="val">No image available</div>
+                </div>
+              )}
             </Col>
           </Row>
         </Grid>

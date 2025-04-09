@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import "./requestDemo.css";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const RequestDemoList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -111,7 +112,7 @@ const RequestDemoList = ({ pageTitle }) => {
     setLimit(dataKey);
   };
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   return (
     <Container className="requestDemos-cont">
