@@ -2,6 +2,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { Col, Popover, Row, Whisper } from "rsuite";
 import mobileScreen from "../../../assets/images/mobile-screen.png";
 import Popup from "./Popup";
+
 import { FadeInSection, HorizontalAnimation } from "./FadeInSection";
 
 const MobileSection = () => {
