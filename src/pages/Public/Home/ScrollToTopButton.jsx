@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "rsuite";
 import SortUpIcon from "@rsuite/icons/SortUp";
+import useScrollEffect from "../../../utilities/useScrollEffect";
 
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -19,11 +20,12 @@ const ScrollToTopButton = () => {
     }
   };
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    // Cleanup listener
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // useEffect(() => {
+  //   window.addEventListener("scroll", handleScroll);
+  //   // Cleanup listener
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
+  useScrollEffect(handleScroll);
 
   return (
     <Button

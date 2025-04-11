@@ -297,25 +297,13 @@ const VisitorList = ({ pageTitle }) => {
                 <HeaderCell>Actions</HeaderCell>
                 <Cell>
                   {(rowData) => (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: "0.625rem",
-                      }}
-                    >
+                    <div>
                       <Link to={`/visitors/edit/${rowData._id}`}>
                         <IconButton
                           title="edit"
                           icon={<EditIcon className="icon-blue" />}
                         />
                       </Link>
-
-                      <IconButton
-                        title="delete"
-                        icon={<TrashIcon color="red" />}
-                        onClick={() => handleOpenDeleteModal(rowData)}
-                      />
                     </div>
                   )}
                 </Cell>
@@ -410,7 +398,7 @@ const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
               {dataObj.visitorImage?.fileurl ? (
                 <div className="details-grp">
                   <div className="lbl">Visitor Image</div>
-                  <div className="val">
+                  <div className="val visitor-image">
                     <img
                       src={dataObj.visitorImage.fileurl}
                       alt={dataObj.visitorImage.title}

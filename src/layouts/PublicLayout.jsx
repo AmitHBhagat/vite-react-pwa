@@ -4,6 +4,7 @@ import { Outlet } from "react-router";
 import PublicHeader from "../components/PublicHeader/Header";
 // import PublicFooter from "../components/Footer/PublicFooter";
 import "./PublicLayout.css";
+import useScrollEffect from "../utilities/useScrollEffect";
 
 const PublicLayout = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -13,19 +14,10 @@ const PublicLayout = () => {
     setTheme(checked ? "light" : "dark");
   };
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    document.body.classList.add("body-public");
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.body.classList.remove("body-public");
-    };
-  }, []);
-
   const handleScroll = () => {
     setIsSticky(window.scrollY > 0);
   };
+  useScrollEffect(handleScroll);
 
   return (
     <CustomProvider theme={theme}>

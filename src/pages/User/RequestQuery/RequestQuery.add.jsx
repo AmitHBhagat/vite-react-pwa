@@ -139,7 +139,9 @@ function RequestQueryAdd({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} lg={8} xl={6}>
               <Form.Group controlId="title">
-                <Form.ControlLabel>Title</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Title *
+                </Form.ControlLabel>
                 <Form.Control
                   name="title"
                   placeholder="Enter Title"
@@ -154,7 +156,9 @@ function RequestQueryAdd({ pageTitle }) {
             </Col>
             <Col xs={24} lg={8} xl={8}>
               <Form.Group controlId="commments">
-                <Form.ControlLabel>Comment</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Comment *
+                </Form.ControlLabel>
                 <Form.Control
                   name="commments"
                   placeholder="Enter Comment"
@@ -169,7 +173,9 @@ function RequestQueryAdd({ pageTitle }) {
             </Col>
             <Col xs={24} lg={16} xl={10}>
               <Form.Group controlId="description">
-                <Form.ControlLabel>Description</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Description *
+                </Form.ControlLabel>
                 <Form.Control
                   name="description"
                   placeholder="Enter Description"

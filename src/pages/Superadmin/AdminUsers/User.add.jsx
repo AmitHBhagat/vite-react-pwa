@@ -146,7 +146,9 @@ function AddUser({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={16} md={6}>
               <Form.Group controlId="userName">
-                <Form.ControlLabel>User Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  User Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="userName"
                   placeholder="Enter Full Name"
@@ -161,7 +163,9 @@ function AddUser({ pageTitle }) {
             </Col>
             <Col xs={16} md={6}>
               <Form.Group controlId="societyName">
-                <Form.ControlLabel>Society Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Society Name *
+                </Form.ControlLabel>
 
                 <InputPicker
                   block
@@ -180,7 +184,9 @@ function AddUser({ pageTitle }) {
             {!userDetails._id && (
               <Col xs={16} md={6}>
                 <Form.Group controlId="password">
-                  <Form.ControlLabel>Password</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Password *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="password"
                     placeholder="Enter user Password"
@@ -196,7 +202,9 @@ function AddUser({ pageTitle }) {
             )}
             <Col xs={16} md={6}>
               <Form.Group controlId="role">
-                <Form.ControlLabel>User Role</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  User Role *
+                </Form.ControlLabel>
 
                 <InputPicker
                   block

@@ -45,27 +45,6 @@ import {
 import { THEME } from "../../../utilities/theme.js";
 import "./Dashboard.css";
 
-const pollData = [
-  {
-    question: "What time should the society meeting be held?",
-    options: ["Morning", "Afternoon", "Evening", "Weekend"],
-    votes: [30, 10, 50, 40],
-    isActive: true,
-  },
-  {
-    question: "Which festival should we celebrate this year?",
-    options: ["Diwali", "Christmas", "Eid", "New Year"],
-    votes: [60, 25, 15, 50],
-    isActive: true,
-  },
-  {
-    question: "Should we increase the society maintenance fee?",
-    options: ["Yes", "No", "Maybe"],
-    votes: [20, 70, 10],
-    isActive: true,
-  },
-];
-
 const monthlyBillData = {
   categories: [
     "Rent",
@@ -478,26 +457,26 @@ const Dashboard = ({ pageTitle }) => {
 
       <Row>
         <Col xs={24}>
-          <CustomPanel title="Poll">
-            <CardGroup columns={2} spacing={15} className="poll-card-group">
-              {pollings.map((poll, index) => (
-                <Card className="pollCard" key={index} bordered>
-                  <Card.Header>
-                    <span>{poll.pollDescription}</span>
-                  </Card.Header>
-                  <Card.Body>
-                    <PieChart
-                      type="pie"
-                      labels={poll.pollOptions.map((option) => option.option)}
-                      series={poll.pollOptions.map(
-                        (option) => option.votes || 0
-                      )}
-                    />
-                  </Card.Body>
-                </Card>
-              ))}
-            </CardGroup>
-          </CustomPanel>
+          <CardGroup columns={2} spacing={20} className="poll-card-group">
+            {pollings.map((poll, index) => (
+              <Card className="pollCard" key={index} bordered>
+                <Card.Header>
+                  <span>{poll.pollDescription}</span>
+                  <div className="mr-t-1">
+                    {formatDate(poll.pollStartDate)} -{" "}
+                    {formatDate(poll.pollEndDate)}
+                  </div>
+                </Card.Header>
+                <Card.Body>
+                  <PieChart
+                    type="pie"
+                    labels={poll.pollOptions.map((option) => option.option)}
+                    series={poll.pollOptions.map((option) => option.votes || 0)}
+                  />
+                </Card.Body>
+              </Card>
+            ))}
+          </CardGroup>
         </Col>
       </Row>
       <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />

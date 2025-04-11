@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   const { promiseInProgress } = usePromiseTracker();
   const authState = useSelector((state) => state.authState);
-  console.log("authState => ", authState);
+
   const [routerKey, setRouterKey] = useState(0);
 
   useEffect(() => setRouterKey((prev) => prev + 1), [authState?.user?.role]);

@@ -1,3 +1,14 @@
+export function debounceFn(fn, ms) {
+  let timer;
+  return (_) => {
+    clearTimeout(timer);
+    timer = setTimeout((_) => {
+      timer = null;
+      fn.apply(this, arguments);
+    }, ms);
+  };
+}
+
 export function copyObjectByKeys(destObj, srcObj) {
   Object.keys(destObj).forEach((key) => {
     if (srcObj.hasOwnProperty(key) && destObj.hasOwnProperty(key))

@@ -54,7 +54,7 @@ const VisitorListAdmin = ({ pageTitle }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedVisitor, setSelectedVisitor] = useState();
   const [flats, setFlats] = useState([]);
-  const [dateRange, setDateRange] = useState(null);
+  const [dateRange, setDateRange] = useState("");
   const [selectedFlatId, setSelectedFlatId] = useState("");
 
   useEffect(() => {
@@ -64,18 +64,24 @@ const VisitorListAdmin = ({ pageTitle }) => {
   useEffect(() => {
     if (societyId) {
       getFlats(societyId);
-      getVisitors(societyId);
+      getVisitors();
     }
   }, [societyId]);
 
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
-  const getVisitors = async (societyId) => {
+  const getVisitors = async () => {
+    const startDate = new Date(dateRange[0]);
+    const endDate = new Date(dateRange[1]);
+    const flatId = selectedFlatId;
+    const payload = { startDate, endDate, flatId };
+
     setPageError("");
+
     let respData = [];
     try {
       const resp = await trackPromise(
-        VisitorService.getSocietyVisitors(societyId, dateRange)
+        VisitorService.getSocietyVisitorflatwise(societyId, payload)
       );
       const { data } = resp;
       if (data.success) respData = resp.data.visitors;
@@ -90,15 +96,23 @@ const VisitorListAdmin = ({ pageTitle }) => {
   };
 
   const getFlats = async (societyId) => {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         FlatManagementService.getFlatsBySocietyId(societyId)
       );
-      setFlats(resp.data.flats);
-    } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch flats", error);
+      const { data } = resp;
+      if (data.success) {
+        respdata = data.flats;
+      }
+    } catch (err) {
+      console.error("Flats fetch catch => ", err);
+      const errMsg = err?.response?.data?.message || `Error in fetching flats`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setFlats(respdata);
   };
 
   const getData = () => {
@@ -209,7 +223,7 @@ const VisitorListAdmin = ({ pageTitle }) => {
               rowHeight={50}
               className="tbl-theme tbl-compact"
             >
-              <Column width={100} sortable>
+              <Column flexGrow={0.6} sortable>
                 <HeaderCell>Image</HeaderCell>
                 <Cell dataKey="societyImage">
                   {(rowData) => {
@@ -228,7 +242,7 @@ const VisitorListAdmin = ({ pageTitle }) => {
                   }}
                 </Cell>
               </Column>
-              <Column sortable flexGrow={2}>
+              <Column sortable flexGrow={1.5}>
                 <HeaderCell>Visitor Name</HeaderCell>
                 <Cell dataKey="visitorName">
                   {(rowData) => (
@@ -246,18 +260,19 @@ const VisitorListAdmin = ({ pageTitle }) => {
                 </Cell>
               </Column>
               <Column flexGrow={1}>
-                <HeaderCell>Flat No</HeaderCell>
-                <Cell dataKey="flat.flatNo" />
-              </Column>
-              <Column width={130}>
                 <HeaderCell>Phone</HeaderCell>
                 <Cell dataKey="visitorPhone" />
               </Column>
-              <Column width={130}>
+              <Column flexGrow={0.6}>
+                <HeaderCell>Flat No</HeaderCell>
+                <Cell dataKey="flat.flatNo" />
+              </Column>
+
+              <Column flexGrow={1}>
                 <HeaderCell>Flat Contact</HeaderCell>
                 <Cell dataKey="flatContact" />
               </Column>
-              <Column width={180}>
+              <Column flexGrow={1}>
                 <HeaderCell>Date & Time</HeaderCell>
                 <Cell dataKey="createdAt">
                   {(rowData) => formatDateTime(rowData.createdAt)}

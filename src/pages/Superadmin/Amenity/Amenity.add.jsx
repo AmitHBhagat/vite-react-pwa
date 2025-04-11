@@ -134,7 +134,9 @@ function AddAmenity({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={24} sm={12} md={6} lg={6} xl={6}>
               <Form.Group controlId="name">
-                <Form.ControlLabel>Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="name"
                   placeholder="Enter a Name"
@@ -150,7 +152,9 @@ function AddAmenity({ pageTitle }) {
 
             <Col xs={24} sm={12} md={6} lg={6} xl={6}>
               <Form.Group controlId="icon">
-                <Form.ControlLabel>Icon</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Icon *
+                </Form.ControlLabel>
                 <Form.Control
                   name="icon"
                   placeholder="Enter a Icon"
@@ -165,7 +169,9 @@ function AddAmenity({ pageTitle }) {
             </Col>
             <Col xs={24} sm={12} md={6} lg={6} xl={6}>
               <Form.Group controlId="role">
-                <Form.ControlLabel>Web Icon</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Web Icon *
+                </Form.ControlLabel>
 
                 <Form.Control
                   name="webIcon"

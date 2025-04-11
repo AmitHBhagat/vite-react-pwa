@@ -3,12 +3,16 @@ body.body-protected .app-container {
 }
 
 body.body-protected .content-container {
-	padding-left: 16.25rem;
+	padding-left: 20%;
 	transition: padding 0.5s;
 }
 
+body.body-protected .content-container.container-partial {
+	padding-left: 5rem;
+}
+
 body.body-protected .content-container.container-full {
-	padding-left: 3.75rem;
+	padding-left: 0;
 }
 
 /* Sidebar Styles */
@@ -22,10 +26,10 @@ body.body-protected .rs-sidebar {
 body.body-protected .rs-sidenav {
 	display: flex;
 	flex-direction: column;
+	width: 100%;
 	height: 100%;
 	transition: none;
 	border-top: 1px solid var(--clr-grey-05);
-	overflow-y: auto;
 }
 
 body.body-protected .rs-sidenav.rs-sidenav-collapse-out .rs-sidenav-item {
@@ -71,9 +75,13 @@ body.body-protected .rs-sidenav-nav .rs-sidenav-item,
 body.body-protected .rs-sidenav-nav .rs-dropdown-toggle {
 	font-size: 1rem;
 	color: var(--clr-grey-01);
-	border-left: 0.3rem solid transparent;
 	padding-left: 3rem;
 	transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.body-protected .container-layout-protected.expanded .rs-sidenav-nav .rs-sidenav-item,
+body.body-protected .container-layout-protected.expanded .rs-sidenav-nav .rs-dropdown-toggle {
+	border-left: 0.3rem solid transparent;
 }
 
 body.body-protected .rs-sidenav-nav .rs-sidenav-item.active {
@@ -101,11 +109,17 @@ body.body-protected .nav-toggle {
 	border-top: 1px solid var(--clr-grey-05);
 }
 
+body.body-protected .container-layout-protected.collapsed .nav-toggle .rs-navbar-nav {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+
 /* Layout styles */
 body.body-protected .rs-content {
 	padding: 1rem;
 	background-color: var(--clr-grey-06);
-	min-height: calc(100vh - 5rem);
+	/* min-height: calc(100vh - 5rem); */
 }
 
 body.body-protected .thm-panel {
@@ -293,6 +307,16 @@ body.body-protected .details-grp .col-status.query-Pending {
 body.body-protected .details-grp .col-status.query-Closed {
 	color: var(--clr-affirm);
 	border-color: var(--clr-affirm);
+}
+
+body.body-protected .details-grp .val.visitor-image {
+	max-height: 18rem;
+	overflow: hidden;
+}
+
+body.body-protected .details-grp .val.visitor-image img {
+	width: 100%;
+	height: 100%;
 }
 
 body.body-protected .ellipsis-text {

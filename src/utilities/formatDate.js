@@ -37,3 +37,9 @@ export const getDayMonthYear = (date) => {
 
   return { day, month, year };
 };
+
+export const getLast24Hours = () => {
+  const endOfDay = moment().endOf("day").toISOString();
+  const startOfLast24Hours = moment().subtract(24, "hours").toISOString();
+  return { startOfLast24Hours, endOfDay };
+};

@@ -73,7 +73,11 @@ export const exportToExcel = async ({
         if (cellLength > maxCellLength) maxCellLength = cellLength;
       });
 
-      if (numericColumns.includes(header.title)) {
+      // Explicitly set number format to plain text for Mobile and TenantContactDetails
+      if (header?.key === "Mobile" || header?.key === "TenantContactDetails") {
+        column.numFmt = "@"; // "@" is the format code for plain text
+        column.alignment = { horizontal: "left" }; // Align left for phone numbers
+      } else if (header?.numeric) {
         column.numFmt = "#,##0";
         column.alignment = { horizontal: "left" };
       }

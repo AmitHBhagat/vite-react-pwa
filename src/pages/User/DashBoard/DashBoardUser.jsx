@@ -20,13 +20,16 @@ import { trackPromise } from "react-promise-tracker";
 import noticeService from "../../../services/notice.service.js";
 import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
-import { formatDate } from "../../../utilities/formatDate";
+import {
+  formatDate,
+  getLast24Hours,
+  formatDateTime,
+} from "../../../utilities/formatDate";
 import parse from "html-react-parser";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import QueryService from "../../../services/requestQuery.service";
 import PollingService from "../../../services/polling.service";
 import { Link } from "react-router-dom";
-import avatar from "../../../assets/images/avtar.png";
 import MeetingService from "../../../services/meeting.service";
 import BillService from "../../../services/billing.service";
 import PaymentService from "../../../services/payment.service";
@@ -76,6 +79,7 @@ const DashboardUser = ({ pageTitle }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState.selectedFlat.societyId;
+  const flatId = authState.selectedFlat.value;
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -87,14 +91,15 @@ const DashboardUser = ({ pageTitle }) => {
       fetchNotices(societyId);
       getQueries(societyId);
       getPollings(societyId);
-      getVisitors(societyId);
     }
   }, [societyId]);
 
   useEffect(() => {
-    if (authState.selectedFlat.societyId && authState.selectedFlat.value)
+    if (societyId && flatId) {
       getBills();
-    getPayment();
+      getPayment();
+      getVisitors();
+    }
   }, [authState.selectedFlat]);
 
   const fetchNotices = async (societyId) => {
@@ -181,27 +186,20 @@ const DashboardUser = ({ pageTitle }) => {
     setPollings(respdata);
   };
 
-  const getVisitors = async (societyId) => {
+  const getVisitors = async () => {
+    const { startOfLast24Hours, endOfDay } = getLast24Hours();
+    const payload = { startDate: startOfLast24Hours, endDate: endOfDay };
+
     setPageError("");
     let respData = [];
     try {
       const resp = await trackPromise(
-        VisitorService.getSocietyVisitors(societyId)
+        VisitorService.getFlatVisitors(authState.selectedFlat.value, payload)
       );
       const { data } = resp;
-      if (data.success) {
-        const now = new Date();
-        const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-        respData = data.visitors
-          .filter((visitor) => {
-            const createdAt = new Date(visitor.createdAt);
-            return (
-              createdAt >= last24Hours &&
-              visitor?.flat?._id === authState.selectedFlat.value
-            );
-          })
-          .slice(0, 5);
+      if (data.success) {
+        respData = data.visitors.slice(0, 5);
       }
     } catch (err) {
       console.error("Visitors fetch catch => ", err);
@@ -210,6 +208,7 @@ const DashboardUser = ({ pageTitle }) => {
       toast.error(errMsg);
       setPageError(errMsg);
     }
+
     setVisitors(respData);
   };
 
@@ -350,7 +349,7 @@ const DashboardUser = ({ pageTitle }) => {
                   trigger="hover"
                   speaker={<Tooltip>More Details</Tooltip>}
                 >
-                  <Link to="/visitors-list">
+                  <Link to="/userVisitors-list">
                     <FaInfoCircle className="meetInfo" />
                   </Link>
                 </Whisper>
@@ -363,13 +362,13 @@ const DashboardUser = ({ pageTitle }) => {
               wordWrap
               className="tbl-theme tbl-compact"
             >
-              <Column flexGrow={1}>
-                <HeaderCell>Date </HeaderCell>
+              <Column flexGrow={1.3}>
+                <HeaderCell>Date & Time</HeaderCell>
                 <Cell dataKey="createdAt">
-                  {(rowData) => formatDate(rowData.createdAt)}
+                  {(rowData) => formatDateTime(rowData.createdAt)}
                 </Cell>
               </Column>
-              <Column flexGrow={1.2}>
+              <Column flexGrow={1.4}>
                 <HeaderCell>Visitor Name</HeaderCell>
                 <Cell dataKey="visitorName">
                   {(rowData) => (
@@ -380,7 +379,7 @@ const DashboardUser = ({ pageTitle }) => {
                 </Cell>
               </Column>
 
-              <Column flexGrow={1}>
+              <Column flexGrow={0.7}>
                 <HeaderCell>Phone</HeaderCell>
                 <Cell dataKey="visitorPhone" />
               </Column>
@@ -444,10 +443,6 @@ const DashboardUser = ({ pageTitle }) => {
               className="tbl-theme tbl-compact"
             >
               <Column flexGrow={1}>
-                <HeaderCell>Flat No</HeaderCell>
-                <Cell dataKey="flatNo" />
-              </Column>
-              <Column flexGrow={1}>
                 <HeaderCell>Bill No</HeaderCell>
                 <Cell dataKey="billNo" />
               </Column>
@@ -499,10 +494,6 @@ const DashboardUser = ({ pageTitle }) => {
               rowHeight={50}
               className="tbl-theme tbl-compact"
             >
-              <Column flexGrow={1}>
-                <HeaderCell>Flat No</HeaderCell>
-                <Cell dataKey="flatNo" />
-              </Column>
               <Column flexGrow={2}>
                 <HeaderCell>Owner Name</HeaderCell>
                 <Cell dataKey="ownerName" />

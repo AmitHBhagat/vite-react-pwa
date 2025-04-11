@@ -36,8 +36,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 5 * 1024 * 1024,
   },
   server: {
-    // host: "192.168.83.208",
-    port: 3002,
+    // host: "192.168.45.138",
+    port: 3001,
     // https: {
     //   key: fs.readFileSync(
     //     path.resolve(__dirname, "192.168.83.208-key.pem"),

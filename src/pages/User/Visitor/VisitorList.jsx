@@ -32,14 +32,12 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDateTime } from "../../../utilities/formatDate";
-import EditIcon from "@rsuite/icons/Edit";
-import TrashIcon from "@rsuite/icons/Trash";
-import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VisitorListUser = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.authState);
-  const societyId = authState?.user?.societyName;
+
   const [pageError, setPageError] = useState("");
   const [visitors, setVisitors] = useState([]);
   const [topAffixed, setTopAffixed] = useState(false);
@@ -51,26 +49,30 @@ const VisitorListUser = ({ pageTitle }) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedVisitor, setSelectedVisitor] = useState();
-  const [dateRange, setDateRange] = useState(null);
+  const [dateRange, setDateRange] = useState("");
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
   }, [dispatch, pageTitle]);
 
-  // useEffect(() => {
-  //   if (societyId) {
-  //     getVisitors(societyId);
-  //   }
-  // }, [authState.selectedFlat]);
+  useEffect(() => {
+    if (authState.selectedFlat.value) {
+      getVisitors(authState.selectedFlat.value);
+    }
+  }, [authState.selectedFlat]);
 
-  const isSmallScreen = useSmallScreen(768);
+  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVisitors = async () => {
+    const startDate = new Date(dateRange[0]);
+    const endDate = new Date(dateRange[1]);
+    const payload = { startDate, endDate };
+
     setPageError("");
     let respData = [];
     try {
       const resp = await trackPromise(
-        VisitorService.getFlatVisitors(authState.selectedFlat.value, dateRange)
+        VisitorService.getFlatVisitors(authState.selectedFlat.value, payload)
       );
       const { data } = resp;
       if (data.success) respData = resp.data.visitors;
@@ -159,6 +161,7 @@ const VisitorListUser = ({ pageTitle }) => {
                 placeholder="Select date range"
                 format="dd/MM/yyyy"
                 block
+                className="date-picker"
               />
               <Button appearance="primary" onClick={getVisitors}>
                 Show
@@ -182,7 +185,7 @@ const VisitorListUser = ({ pageTitle }) => {
               rowHeight={50}
               className="tbl-theme tbl-compact"
             >
-              <Column width={100} sortable>
+              <Column flexGrow={1}>
                 <HeaderCell>Image</HeaderCell>
                 <Cell dataKey="societyImage">
                   {(rowData) => {
@@ -201,7 +204,7 @@ const VisitorListUser = ({ pageTitle }) => {
                   }}
                 </Cell>
               </Column>
-              <Column sortable flexGrow={2}>
+              <Column sortable flexGrow={1}>
                 <HeaderCell>Visitor Name</HeaderCell>
                 <Cell dataKey="visitorName">
                   {(rowData) => (
@@ -219,18 +222,14 @@ const VisitorListUser = ({ pageTitle }) => {
                 </Cell>
               </Column>
               <Column flexGrow={1}>
-                <HeaderCell>Flat No</HeaderCell>
-                <Cell dataKey="flat.flatNo" />
-              </Column>
-              <Column width={130}>
                 <HeaderCell>Phone</HeaderCell>
                 <Cell dataKey="visitorPhone" />
               </Column>
-              <Column width={130}>
+              <Column flexGrow={1}>
                 <HeaderCell>Flat Contact</HeaderCell>
                 <Cell dataKey="flatContact" />
               </Column>
-              <Column width={180}>
+              <Column flexGrow={1}>
                 <HeaderCell>Date & Time</HeaderCell>
                 <Cell dataKey="createdAt">
                   {(rowData) => formatDateTime(rowData.createdAt)}

@@ -4,7 +4,7 @@
 
  }
 
- .stats-panel .rs-panel-header {
+ .dashboard-container .stats-panel .rs-panel-header {
  	color: var(--clr-primary);
  }
 
@@ -61,10 +61,6 @@
 
  }
 
- /* .poll-card-group .rs-card-body {
-	padding: 0rem !important;
- } */
-
  .calenderEvent {
  	display: flex;
  	justify-content: center;
@@ -94,12 +90,12 @@
  }
 
 
- .rs-calendar-panel .rs-calendar-table-cell-is-today .rs-calendar-table-cell-day {
- 	background-color: var(--clr-primary) !important;
+ .dashboard-container .rs-calendar-panel .rs-calendar-table-cell-is-today .rs-calendar-table-cell-day {
+ 	background-color: var(--clr-primary);
  }
 
- .rs-calendar-panel .rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
- 	box-shadow: inset 0 0 0 1px var(--clr-primary) !important;
+ .dashboard-container .rs-calendar-panel .rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+ 	box-shadow: inset 0 0 0 1px var(--clr-primary);
 
  }
 
@@ -113,6 +109,6 @@
  	justify-content: center;
  	align-items: center;
  	background-color: var(--clr-primary);
- 	width: 50px;
- 	height: 50px;
+ 	width: 3rem;
+ 	height: 3rem;
  }

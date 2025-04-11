@@ -3,8 +3,12 @@ import httpClient from "../httpClient";
 const baseSlug = "/admin/visitor";
 
 class VisitorService {
-  getSocietyVisitors(societyId, dateRange) {
-    return httpClient.get(`${baseSlug}/society/${societyId}`, dateRange);
+  getSocietyVisitors(societyId) {
+    return httpClient.get(`${baseSlug}/society/${societyId}`);
+  }
+
+  getSocietyVisitorflatwise(societyId, data) {
+    return httpClient.post(`${baseSlug}/society/${societyId}`, data);
   }
 
   createSocietyVisitors(societyId, data) {
@@ -12,7 +16,7 @@ class VisitorService {
   }
 
   getFlatVisitors(flatId, dateRange) {
-    return httpClient.get(`${baseSlug}/flat/${flatId}`, dateRange);
+    return httpClient.post(`${baseSlug}/flat/${flatId}`, dateRange);
   }
 
   createFlatVisitors(flatId, data) {

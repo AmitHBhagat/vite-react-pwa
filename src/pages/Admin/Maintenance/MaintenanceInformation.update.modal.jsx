@@ -128,7 +128,9 @@ const MaintenanceUpdateModal = ({
             <Row gutter={5}>
               <Col xs={24} md={24} lg={12}>
                 <Form.Group>
-                  <Form.ControlLabel>Title</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Title *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="title"
                     placeholder="Enter Title"
@@ -143,7 +145,9 @@ const MaintenanceUpdateModal = ({
               </Col>
               <Col xs={24} md={24} lg={12}>
                 <Form.Group>
-                  <Form.ControlLabel>Value</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Value *
+                  </Form.ControlLabel>
                   <Form.Control
                     name="number"
                     accepter={InputNumber}
@@ -159,7 +163,9 @@ const MaintenanceUpdateModal = ({
               </Col>
               <Col xs={24} md={24} lg={12}>
                 <Form.Group>
-                  <Form.ControlLabel>Calculation</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Calculation *
+                  </Form.ControlLabel>
 
                   <InputPicker
                     block
@@ -177,7 +183,9 @@ const MaintenanceUpdateModal = ({
               </Col>
               <Col xs={24} md={24} lg={12}>
                 <Form.Group>
-                  <Form.ControlLabel>Charge Type</Form.ControlLabel>
+                  <Form.ControlLabel className="mandatory-field">
+                    Charge Type *
+                  </Form.ControlLabel>
 
                   <InputPicker
                     block
