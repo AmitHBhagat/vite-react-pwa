@@ -34,6 +34,7 @@ function UploadUser({ pageTitle }) {
   };
 
   const handleSubmit = async (e) => {
+    setPageError("");
     const formData = new FormData();
     formData.append("societyId", societyId);
 
@@ -58,9 +59,11 @@ function UploadUser({ pageTitle }) {
         toast.error("Failed to upload file.");
       }
     } catch (err) {
-      console.error("users save error catch => ", err);
-      toast.error(err.response.data.message);
-      setPageError(err);
+      console.error("Users save error catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in  uploading the users`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   };
 

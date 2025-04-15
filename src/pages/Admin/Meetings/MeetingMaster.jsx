@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
   FlexboxGrid,
-  Modal,
-  Grid,
-  Whisper,
-  Tooltip,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
@@ -30,14 +25,11 @@ import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import MeetingService from "../../../services/meeting.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDateTime } from "../../../utilities/formatDate";
 import { THEME } from "../../../utilities/theme";
 import parse from "html-react-parser";
-import CheckOutlineIcon from "@rsuite/icons/CheckOutline";
-import CloseOutlineIcon from "@rsuite/icons/CloseOutline";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
-import { BREAK_POINTS } from "../../../utilities/constants";
+import Paginator from "../../../components/Table/Paginator";
 
 const MeetingList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -63,8 +55,6 @@ const MeetingList = ({ pageTitle }) => {
     dispatch(setRouteData({ pageTitle }));
     getMeetings();
   }, [dispatch, pageTitle]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getMeetings = async () => {
     setPageError("");
@@ -263,34 +253,14 @@ const MeetingList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
+        <Paginator
+          data={meetings}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          handleChangeLimit={handleChangeLimit}
+        />
 
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={meetings?.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
         <DeleteModal
           showBigMsg={true}
           bigMsg={

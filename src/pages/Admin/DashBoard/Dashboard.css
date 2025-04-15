@@ -112,3 +112,8 @@
  	width: 3rem;
  	height: 3rem;
  }
+
+ .dashboard-container .pollCard .pollTitle {
+ 	color: var(--clr-primary);
+ 	margin-bottom: 1rem;
+ }

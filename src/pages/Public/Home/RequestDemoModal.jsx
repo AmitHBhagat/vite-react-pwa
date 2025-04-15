@@ -30,6 +30,8 @@ const validationSchema = Yup.object().shape({
 const RequestDemoModal = ({ isOpen, onClose }) => {
   const [frmSubmitted, setFrmSubmitted] = useState(false);
   const [pageError, setPageError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const frmObj = useFormik({
     initialValues: {
       email: "",
@@ -48,6 +50,7 @@ const RequestDemoModal = ({ isOpen, onClose }) => {
 
   async function handleSubmit() {
     setPageError("");
+    setLoading(true);
     const payload = { ...frmObj.values };
     try {
       const resp = await trackPromise(
@@ -56,6 +59,7 @@ const RequestDemoModal = ({ isOpen, onClose }) => {
       const { data } = resp;
       if (data.success) {
         toast.success("Request demo send successfully");
+        onClose();
       }
     } catch (error) {
       const errMsg =
@@ -64,6 +68,7 @@ const RequestDemoModal = ({ isOpen, onClose }) => {
       console.error("Failed to sending request demo", errMsg);
       setPageError(errMsg);
     }
+    setLoading(false);
   }
   return (
     <Modal
@@ -165,7 +170,12 @@ const RequestDemoModal = ({ isOpen, onClose }) => {
 
               <Col xs={24} md={24} lg={24}>
                 <Form.Group className="txt-rgt">
-                  <Button appearance="primary" align="center" type="submit">
+                  <Button
+                    appearance="primary"
+                    align="center"
+                    type="submit"
+                    loading={loading}
+                  >
                     Send Request
                   </Button>
                 </Form.Group>

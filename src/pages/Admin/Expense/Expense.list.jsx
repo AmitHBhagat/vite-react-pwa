@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
   FlexboxGrid,
-  Checkbox,
   InputPicker,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
@@ -33,6 +31,7 @@ import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
 import { THEME } from "../../../utilities/theme";
 import { formatDate } from "../../../utilities/formatDate";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import Paginator from "../../../components/Table/Paginator.jsx";
 
 const currentYear = new Date().getFullYear();
 const currentMonth = new Date().toLocaleString("default", { month: "long" });
@@ -72,6 +71,7 @@ const Expense = ({ pageTitle }) => {
   }, [dispatch, pageTitle]);
 
   const getExpenses = async () => {
+    setPageError("");
     try {
       const resp = await trackPromise(ExpenseService.getExpenses(societyId));
       setAllExpenses(resp.data.expenses);
@@ -88,8 +88,6 @@ const Expense = ({ pageTitle }) => {
       setPageError(errMsg);
     }
   };
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getData = () => {
     let filteredExpenseDetails = currentExpenses.filter(
@@ -332,34 +330,13 @@ const Expense = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={currentExpenses.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={currentExpenses}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          handleChangeLimit={handleChangeLimit}
+        />
 
         <DeleteModal
           isOpen={modalOpen}

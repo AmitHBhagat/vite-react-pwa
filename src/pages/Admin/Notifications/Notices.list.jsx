@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -29,7 +28,6 @@ import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import noticeService from "../../../services/notice.service.js";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import classNames from "classnames";
 import { formatDate } from "../../../utilities/formatDate";
@@ -37,7 +35,7 @@ import parse from "html-react-parser";
 import CheckOutlineIcon from "@rsuite/icons/CheckOutline";
 import CloseOutlineIcon from "@rsuite/icons/CloseOutline";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
-import { BREAK_POINTS } from "../../../utilities/constants.js";
+import Paginator from "../../../components/Table/Paginator.jsx";
 
 const NoticeList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -64,10 +62,8 @@ const NoticeList = ({ pageTitle }) => {
   }, [dispatch, pageTitle]);
 
   useEffect(() => {
-    if (societyId) fetchNotices(societyId);
+    if (societyId) fetchNotices();
   }, [societyId]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const fetchNotices = async (societyId) => {
     setPageError("");
@@ -279,34 +275,13 @@ const NoticeList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={notices.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={notices}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          handleChangeLimit={handleChangeLimit}
+        />
 
         <DeleteModal
           isOpen={modalOpen}

@@ -27,7 +27,6 @@ function AddExpenseCategory({ pageTitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { categoryId } = useParams();
-
   const [pageError, setPageError] = useState("");
   const [categoryDetails, setCategoryDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
@@ -76,18 +75,24 @@ function AddExpenseCategory({ pageTitle }) {
   }
 
   async function fetchCategoryDetails() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         ExpenseCategoryService.getExpenseCategoryDetails(categoryId)
       );
+
       const { data } = resp;
-      if (data.success) {
-        setCategoryDetails(data.expenseCategory);
-      }
+      if (data.success) respdata = resp.data.expenseCategory;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch expense category  details catch => ", err);
+      console.error("Expense category details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message ||
+        `Error in fetching expense category details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setCategoryDetails(respdata);
   }
 
   const handleFieldChange = (key) => (value) => {
@@ -112,7 +117,6 @@ function AddExpenseCategory({ pageTitle }) {
       if (data.success) {
         toast.success("Expense category saved successfully!");
         navigate(-1);
-      } else {
       }
     } catch (err) {
       console.error("Expense category save error catch => ", err);

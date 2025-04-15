@@ -11,6 +11,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { formatDate } from "../../../utilities/formatDate";
 import SocietyService from "../../../services/society.service";
 import { setRouteData } from "../../../stores/appSlice";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import "./society.css";
 
 function SocietyDetails({ pageTitle }) {
@@ -29,16 +30,20 @@ function SocietyDetails({ pageTitle }) {
   }, [societyId]);
 
   async function fetchSocietyDetails(societyid) {
+    setPageError("");
+    let respData = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyid));
       const { data } = resp;
-      if (data.success) {
-        setSocietyDetails(data.society);
-      }
+      if (data.success) respData = data.society;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch society details catch => ", err);
+      console.error("Society details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching society details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setSocietyDetails(respData);
   }
 
   return (
@@ -148,7 +153,7 @@ function SocietyDetails({ pageTitle }) {
             </Col>
           </Row>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </>
   );

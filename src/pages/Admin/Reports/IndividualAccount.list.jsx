@@ -34,6 +34,7 @@ import { FiExternalLink } from "react-icons/fi";
 import BillAdjustmentDetailModal from "./BillingAdjustment.detail.modal";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
 import { BREAK_POINTS } from "../../../utilities/constants";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const IndividualAccountList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -52,7 +53,7 @@ const IndividualAccountList = ({ pageTitle }) => {
   const [sortColumn, setSortColumn] = useState();
   const [sortType, setSortType] = useState();
   const [loading, setLoading] = useState(false);
-
+  const [pageError, setPageError] = useState("");
   const [individualAccountId, setIndividualAccountId] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -98,6 +99,7 @@ const IndividualAccountList = ({ pageTitle }) => {
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getFlats = async () => {
+    setPageError("");
     let flats = [];
     try {
       const resp = await trackPromise(
@@ -111,6 +113,7 @@ const IndividualAccountList = ({ pageTitle }) => {
       const errMsg =
         error?.response?.data?.message || `Error in fetching flats`;
       toast.error(errMsg);
+      setPageError(errMsg);
       console.error("Failed to fetch flats", errMsg);
     }
     setFlats(flats);
@@ -442,6 +445,7 @@ const IndividualAccountList = ({ pageTitle }) => {
             onChangeLimit={handleChangeLimit}
           />
         </div>
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
       <BillAdjustmentDetailModal
         itemId={selectedIndividualAccountId}

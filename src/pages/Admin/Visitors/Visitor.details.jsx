@@ -8,6 +8,7 @@ import ArowBackIcon from "@rsuite/icons/ArowBack";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import VisitorService from "../../../services/visitor.service";
 import { setRouteData } from "../../../stores/appSlice";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import { formatDate } from "../../../utilities/formatDate";
 
 function VisitorDetails({ pageTitle }) {
@@ -106,7 +107,7 @@ function VisitorDetails({ pageTitle }) {
             )}
           </Row>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </>
   );

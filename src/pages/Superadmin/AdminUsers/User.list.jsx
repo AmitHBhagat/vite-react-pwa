@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
-  useToaster,
   Affix,
   Button,
   FlexboxGrid,
@@ -23,36 +21,46 @@ import EditIcon from "@rsuite/icons/Edit";
 import { IconButton } from "rsuite";
 import TrashIcon from "@rsuite/icons/Trash";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
-import "./user.css";
 import { setRouteData } from "../../../stores/appSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import classNames from "classnames";
-
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 import "../../../layouts/ProtectedLayout.css";
 import { BREAK_POINTS } from "../../../utilities/constants";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import "./user.css";
 
 const Users = ({ pageTitle }) => {
   const dispatch = useDispatch();
-  const toaster = useToaster();
   const [users, setUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = React.useState(5);
   const [topAffixed, setTopAffixed] = useState(false);
-  const [page, setPage] = React.useState(1);
-  const [sortColumn, setSortColumn] = React.useState();
-  const [sortType, setSortType] = React.useState();
-  const [loading, setLoading] = React.useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState([]);
-  const [pageError, set_pageError] = useState("");
+  const [pageError, setPageError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
   const [status, setStatus] = useState(false);
   const [disable, setDisable] = useState(false);
   const authState = useSelector((state) => state.authState);
   const role = authState?.user?.role;
   const societyId = authState?.user?.societyName;
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -60,74 +68,46 @@ const Users = ({ pageTitle }) => {
   }, []);
 
   const getUsers = async () => {
+    setPageError("");
+
     try {
       const resp = await trackPromise(adminService.getUsers());
-      const admindata = resp.data.adminUsers;
+      const adminData = resp.data.adminUsers;
 
-      const allAdmins = admindata.filter((user) => user.role === "admin");
+      const allAdmins = adminData.filter((user) => user.role === "admin");
 
       if (role !== "admin") {
         setUsers(allAdmins);
       } else {
         const societyAdmins = allAdmins.filter(
-          (user) => user.societyName?._id === societyId
+          (user) => user?.societyName?._id === societyId
         );
         setUsers(societyAdmins);
       }
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.error("Failed to fetch users", error);
+    } catch (err) {
+      console.error("User  fetch catch => ", err);
+      const errMsg = err?.response?.data?.message || `Error in fetching users`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   };
 
-  const getData = () => {
-    let filteredUsers = users;
+  const paginatedData = useTableData({
+    data: users,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "userName",
+  });
+  const finalDataForTable = () => {
+    const finalUser = paginatedData?.limitData?.map((user) => ({
+      ...user,
+      societyName: user.societyName?.societyName || user.societyName,
+    }));
 
-    if (searchQuery) {
-      filteredUsers = users.filter((user) =>
-        user.userName.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    let sortedUsers = [...filteredUsers];
-    if (sortColumn && sortType) {
-      sortedUsers.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        if (sortType === "asc") {
-          return x - y;
-        } else {
-          return y - x;
-        }
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    const paginatedUsers = sortedUsers.slice(start, end);
-    paginatedUsers.forEach((user) => {
-      user.societyName = user.societyName?.societyName || user.societyName;
-    });
-    return paginatedUsers;
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
+    return finalUser;
   };
 
   const handleOpenModal = (itemId) => {
@@ -152,18 +132,14 @@ const Users = ({ pageTitle }) => {
         getUsers();
         handleCloseModal();
       }
-    } catch (err) {
-      toast.error(err.response.data.message);
-      console.error("Delete error catch => ", err);
-      if (err.code !== "ERR_NETWORK") {
-        set_pageError(err.response.data.message);
-      } else {
-        set_pageError(err.response.data.message);
-      }
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || "Error in deleting the user";
+      toast.error(errMsg);
+      setDeleteError(errMsg);
+      console.error("User delete catch => ", error);
     }
   }
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   return (
     <Container className="users-container">
@@ -175,6 +151,7 @@ const Users = ({ pageTitle }) => {
           deleteUser(selectedItemId[0]);
         }}
         deleteMsg={selectedItemId[1]}
+        deleteErr={deleteError}
       />
 
       <ScrollToTop />
@@ -211,10 +188,10 @@ const Users = ({ pageTitle }) => {
             <Table
               autoHeight
               wordWrap="break-word"
-              data={getData()}
+              data={finalDataForTable()}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               affixHeader={50}
               headerHeight={40}
@@ -272,33 +249,14 @@ const Users = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={users.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={users}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>
   );

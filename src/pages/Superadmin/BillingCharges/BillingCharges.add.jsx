@@ -60,8 +60,9 @@ function AddBill({ pageTitle }) {
     dispatch(setRouteData({ pageTitle }));
   }, [pageTitle, dispatch]);
   useEffect(() => {
+    console.log(status);
     if (status === "Edited") {
-      if (selectedBill._id && selectedBill.rowIndex !== undefined) {
+      if (selectedBill.calcType && selectedBill.rowIndex !== undefined) {
         setBillDetails((prevDetails) =>
           prevDetails.map((bill, index) =>
             index === selectedBill.rowIndex ? selectedBill : bill

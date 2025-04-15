@@ -8,7 +8,9 @@ import ArowBackIcon from "@rsuite/icons/ArowBack";
 import CheckOutlineIcon from "@rsuite/icons/CheckOutline";
 import CloseOutlineIcon from "@rsuite/icons/CloseOutline";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import BankDetailService from "../../../services/bankDetails.service.js";
 import { setRouteData } from "../../../stores/appSlice";
 
@@ -25,24 +27,28 @@ function BankDetailDetails({ pageTitle }) {
 
   useEffect(() => {
     if (bankDetailId) {
-      fetchBankDetailDetails(bankDetailId);
+      fetchBankDetails(bankDetailId);
     }
   }, [bankDetailId]);
 
-  async function fetchBankDetailDetails(bankDetailId) {
+  async function fetchBankDetails(bankDetailId) {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         BankDetailService.getBankDetailDetails(bankDetailId)
       );
 
       const { data } = resp;
-      if (data.success) {
-        setbankDetails(data.bankDetail);
-      }
+      if (data.success) respdata = resp.data.bankDetail;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch bank details catch => ", err);
+      console.error("Bank details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching bank details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setbankDetails(respdata);
   }
 
   return (
@@ -119,7 +125,7 @@ function BankDetailDetails({ pageTitle }) {
             </Col>
           </Row>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </>
   );

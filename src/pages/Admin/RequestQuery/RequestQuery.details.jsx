@@ -9,6 +9,7 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import RequestQueryService from "../../../services/requestQuery.service";
 import { setRouteData } from "../../../stores/appSlice";
 import { formatDate } from "../../../utilities/formatDate";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 function RequestQueryDetail({ pageTitle }) {
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ function RequestQueryDetail({ pageTitle }) {
     getQueryDetails();
   }, [dispatch, pageTitle]);
 
-  const getQueryDetails = async (societyId) => {
+  const getQueryDetails = async () => {
     setPageError("");
     let respData = [];
     try {
@@ -118,7 +119,7 @@ function RequestQueryDetail({ pageTitle }) {
             </Col>
           </Row>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </>
   );

@@ -90,7 +90,10 @@ function UploadFlat({ pageTitle }) {
         console.log("Raw Extracted Data:", rawData);
 
         const transformedData = rawData.map((row) => {
-          const billDependencies = flatDeps.map((obj) => {
+          console.log("row", row);
+          const billDependencies = flatDeps.map((OriginalObj) => {
+            let obj = { ...OriginalObj };
+
             delete obj._id;
             Object.entries(row).forEach(([key, value]) => {
               if (key === obj.depTitle) {

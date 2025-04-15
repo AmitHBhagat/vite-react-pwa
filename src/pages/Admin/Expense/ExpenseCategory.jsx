@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -21,7 +20,6 @@ import SearchIcon from "@rsuite/icons/Search";
 import { IconButton } from "rsuite";
 import TrashIcon from "@rsuite/icons/Trash";
 import EditIcon from "@rsuite/icons/Edit";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
@@ -38,6 +36,7 @@ import ErrorMessage, {
 
 import { THEME } from "../../../utilities/theme";
 import { BREAK_POINTS } from "../../../utilities/constants.js";
+import Paginator from "../../../components/Table/Paginator.jsx";
 
 const ExpenseCategory = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -64,10 +63,10 @@ const ExpenseCategory = ({ pageTitle }) => {
   }, [dispatch, pageTitle]);
 
   useEffect(() => {
-    if (societyId) getExpenseCategories(societyId);
+    if (societyId) {
+      getExpenseCategories();
+    }
   }, [societyId]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getExpenseCategories = async (societyId) => {
     setPageError("");
@@ -259,34 +258,14 @@ const ExpenseCategory = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
+        <Paginator
+          data={expenseCategory}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          handleChangeLimit={handleChangeLimit}
+        />
 
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={expenseCategory.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
         <ModalForm
           isOpen={formOpen}
           onClose={closeFormModal}

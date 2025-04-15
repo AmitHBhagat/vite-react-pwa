@@ -41,6 +41,7 @@ const BillingList = ({ pageTitle }) => {
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBills = async () => {
+    setPageError("");
     try {
       const resp = await trackPromise(
         BillService.getBillsByFlat(
@@ -57,9 +58,11 @@ const BillingList = ({ pageTitle }) => {
       } else setBillList([]);
     } catch (err) {
       setBillList([]);
-      console.error("Fetch bills catch => ", err);
+      console.error("Bill fetching catch => ", err);
       const errMsg = err?.response?.data?.message || `Error in fetching bills`;
       toast.error(errMsg);
+      setPageError(errMsg);
+      return;
     }
   };
 
@@ -190,7 +193,7 @@ const BillingList = ({ pageTitle }) => {
                   {(rawData) => formatDate(rawData.billDate)}
                 </Cell>
               </Column>
-              <Column sortable flexGrow={1}>
+              <Column sortable flexGrow={1.1}>
                 <HeaderCell>Month</HeaderCell>
                 <Cell dataKey="maintenanceMonth" />
               </Column>

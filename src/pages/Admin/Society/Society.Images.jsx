@@ -26,16 +26,17 @@ import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { BREAK_POINTS } from "../../../utilities/constants";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 import "./society.css";
-import { BREAK_POINTS } from "../../../utilities/constants";
 
 const SocietyImages = ({ pageTitle }) => {
   const dispatch = useDispatch();
 
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selSociety, setSelSociety] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -45,6 +46,19 @@ const SocietyImages = ({ pageTitle }) => {
   const [societyInfo, setSocietyInfo] = useState([]);
   const [pageError, setPageError] = useState("");
   const societyId = authState?.user?.societyName;
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -52,20 +66,20 @@ const SocietyImages = ({ pageTitle }) => {
 
   useEffect(() => {
     if (societyId) {
-      fetchSocietyInfo(societyId);
+      fetchSocietyInfo();
     }
   }, [societyId]);
 
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
-  const fetchSocietyInfo = async (societyId) => {
+  const fetchSocietyInfo = async () => {
     setPageError("");
-    let respdata = [];
+    let respData = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyId));
       const { data } = resp;
       if (data.success) {
-        respdata = data?.society?.societyImages;
+        respData = data?.society?.societyImages;
       }
     } catch (err) {
       console.error("Society image fetch catch => ", err);
@@ -74,7 +88,7 @@ const SocietyImages = ({ pageTitle }) => {
       toast.error(errMsg);
       setPageError(errMsg);
     }
-    setSocietyInfo(respdata);
+    setSocietyInfo(respData);
   };
 
   const handleChangeLimit = (dataKey) => {
@@ -145,7 +159,6 @@ const SocietyImages = ({ pageTitle }) => {
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Affix>
-
         <Row gutter={0} className="section-mb">
           <Col xs={24}>
             <Table
@@ -200,34 +213,13 @@ const SocietyImages = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={societyInfo.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={societyInfo}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
 
         <DeleteModal
           isOpen={modalOpen}

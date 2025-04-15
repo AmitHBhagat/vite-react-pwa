@@ -1,118 +1,84 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
-  useToaster,
   Affix,
   FlexboxGrid,
 } from "rsuite";
-
 import RequestDemoService from "../../../services/requestDemo.service";
 import { trackPromise } from "react-promise-tracker";
 import { Link } from "react-router-dom";
 import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
 import SearchIcon from "@rsuite/icons/Search";
-
 import classNames from "classnames";
-
 import { setRouteData } from "../../../stores/appSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 import "./requestDemo.css";
-import { BREAK_POINTS } from "../../../utilities/constants";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const RequestDemoList = ({ pageTitle }) => {
   const dispatch = useDispatch();
-  const toaster = useToaster();
   const [requestDemos, setRequestDemos] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = React.useState(5);
-  const [page, setPage] = React.useState(1);
-  const [sortColumn, setSortColumn] = React.useState();
-  const [sortType, setSortType] = React.useState();
-  const [loading, setLoading] = React.useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(null);
-  const [pageError, set_pageError] = useState("");
-  const [status, setStatus] = useState(false);
-  const [disable, setDisable] = useState(false);
   const [topAffixed, setTopAffixed] = useState(false);
+  const [pageError, setPageError] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
+
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
     getRequestDemoList();
   }, []);
 
   const getRequestDemoList = async () => {
+    setPageError("");
+    setLoading(true);
+    let requestDemos = [];
     try {
       const resp = await trackPromise(RequestDemoService.getRequestDemos());
-      setRequestDemos(resp.data.requestDemos);
+      const { data } = resp;
+      if (data.success) requestDemos = data.requestDemos;
     } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.error("Failed to fetch requestDemos", error);
+      const errMsg =
+        error?.response?.data?.message || `Error in fetching request demos`;
+      toast.error(errMsg);
+      console.error("Failed to fetch requestDemos", errMsg);
+      setPageError(errMsg);
     }
+    setRequestDemos(requestDemos);
+    setLoading(false);
   };
-
-  const getData = () => {
-    let filteredRequestDemos = requestDemos;
-    if (searchQuery) {
-      filteredRequestDemos = requestDemos.filter((requestDemo) =>
-        requestDemo.requestDemoName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-      );
-    }
-    let sortedRequestDemos = [...filteredRequestDemos];
-    if (sortColumn && sortType) {
-      sortedRequestDemos.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        if (sortType === "asc") {
-          return x - y;
-        } else {
-          return y - x;
-        }
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    const paginatedRequestDemos = sortedRequestDemos.slice(start, end);
-    paginatedRequestDemos.forEach((requestDemo) => {
-      requestDemo.societyName =
-        requestDemo.societyName?.societyName || requestDemo.societyName;
-    });
-    return paginatedRequestDemos;
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
+  const paginatedData = useTableData({
+    data: requestDemos,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "societyName",
+    filterElement2: "name",
+  });
 
   return (
     <Container className="requestDemos-cont">
@@ -141,10 +107,10 @@ const RequestDemoList = ({ pageTitle }) => {
             <Table
               autoHeight
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               className="tbl-theme tbl-compact"
             >
@@ -209,33 +175,15 @@ const RequestDemoList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={requestDemos.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
+
+        <Paginator
+          data={requestDemos}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
       </div>
     </Container>
   );

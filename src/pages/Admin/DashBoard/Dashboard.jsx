@@ -461,6 +461,7 @@ const Dashboard = ({ pageTitle }) => {
             {pollings.map((poll, index) => (
               <Card className="pollCard" key={index} bordered>
                 <Card.Header>
+                  <h6 className="pollTitle">Poll</h6>
                   <span>{poll.pollDescription}</span>
                   <div className="mr-t-1">
                     {formatDate(poll.pollStartDate)} -{" "}

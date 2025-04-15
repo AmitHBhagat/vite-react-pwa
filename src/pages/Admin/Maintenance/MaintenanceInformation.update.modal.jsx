@@ -67,7 +67,8 @@ const MaintenanceUpdateModal = ({
       };
 
       setSelectedBill(updatedSelectedBill);
-      if (selectedBill._id) {
+      console.log("status with billingChargeService", status, selectedBill);
+      if (selectedBill.calcType) {
         setStatus("Edited");
       } else {
         setStatus("Added");

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -27,23 +26,19 @@ import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import FlatManagementService from "../../../services/flat.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
 import StatusIndicator from "../../../components/StatusIndicator/StatusIndicator";
-import { BREAK_POINTS } from "../../../utilities/constants";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const FlatManagementList = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [flats, setFlats] = useState(null);
   const [currentFlats, setCurrentFlats] = useState([]);
   const [topAffixed, setTopAffixed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const [pageError, setPageError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selFlatManagement, setSelFlatManagement] = useState({});
@@ -52,13 +47,24 @@ const FlatManagementList = ({ pageTitle }) => {
   const [deleteConsent, setDeleteConsent] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
     getFlats();
   }, [dispatch, pageTitle]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getFlats = async () => {
     setPageError("");
@@ -91,52 +97,48 @@ const FlatManagementList = ({ pageTitle }) => {
     }
   }, [flats]);
 
-  useEffect(() => {
-    let filtered = flats || [];
-    filtered = filtered.map((flat) => ({
-      ...flat,
-      billDependencies: flat.billDependencies || [],
-    }));
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (e) =>
-          e.flatNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          e.ownerName.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+  // useEffect(() => {
+  //   let filtered = flats || [];
+  //   filtered = filtered.map((flat) => ({
+  //     ...flat,
+  //     billDependencies: flat.billDependencies || [],
+  //   }));
+  //   if (searchQuery) {
+  //     filtered = filtered.filter(
+  //       (e) =>
+  //         e.flatNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //         e.ownerName.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   }
 
-    if (sortColumn && sortType) {
-      filtered = [...filtered].sort((a, b) => {
-        const aValue = a[sortColumn];
-        const bValue = b[sortColumn];
-        return sortType === "asc"
-          ? aValue.localeCompare(bValue, undefined, { numeric: true })
-          : bValue.localeCompare(aValue, undefined, { numeric: true });
-      });
-    }
+  //   if (sortColumn && sortType) {
+  //     filtered = [...filtered].sort((a, b) => {
+  //       const aValue = a[sortColumn];
+  //       const bValue = b[sortColumn];
+  //       return sortType === "asc"
+  //         ? aValue.localeCompare(bValue, undefined, { numeric: true })
+  //         : bValue.localeCompare(aValue, undefined, { numeric: true });
+  //     });
+  //   }
 
-    setCurrentFlats(filtered);
-  }, [flats, searchQuery, sortColumn, sortType]);
+  //   setCurrentFlats(filtered);
+  // }, [flats, searchQuery, sortColumn, sortType]);
 
-  const getData = () => {
-    let filteredFlats = currentFlats.slice((page - 1) * limit, page * limit);
+  // const getData = () => {
+  //   let filteredFlats = currentFlats.slice((page - 1) * limit, page * limit);
 
-    return filteredFlats;
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  //   return filteredFlats;
+  // };
+  const paginatedData = useTableData({
+    data: currentFlats,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "flatNo",
+    filterElement2: "ownerName",
+  });
 
   const handleOpenModal = (item) => {
     setSelFlatManagement(item);
@@ -218,10 +220,10 @@ const FlatManagementList = ({ pageTitle }) => {
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={40}
@@ -323,34 +325,14 @@ const FlatManagementList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
+        <Paginator
+          data={currentFlats}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
 
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={currentFlats.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
         <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
 
         <DeleteModal

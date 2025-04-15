@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
-  Button,
   FlexboxGrid,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
@@ -22,22 +20,31 @@ import classNames from "classnames";
 import maintenanceService from "../../../services/maintenance.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
-import { BREAK_POINTS } from "../../../utilities/constants";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const MaintenanceManagement = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [topAffixed, setTopAffixed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
   const [currentList, setCurrentList] = useState([]);
   const [billChargesHeaders, setBillChargesHeaders] = useState([]);
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -63,50 +70,16 @@ const MaintenanceManagement = ({ pageTitle }) => {
 
   console.log("currentList.....", currentList, billChargesHeaders);
 
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
-
-  const getData = () => {
-    let filteredMaintenanceInfo = currentList.filter((currentList) => {
-      const matchesSearchQuery = currentList.flatNo
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      return matchesSearchQuery;
-    });
-
-    // Sorting logic
-    if (sortColumn && sortType) {
-      filteredMaintenanceInfo.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        return sortType === "asc" ? x - y : y - x;
-      });
-    }
-
-    // Pagination logic
-    const start = limit * (page - 1);
-    const end = start + limit;
-    return filteredMaintenanceInfo.slice(start, end);
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  const paginatedData = useTableData({
+    data: currentList,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "flatNo",
+    filterElement2: "",
+  });
 
   return (
     <Container className="">
@@ -137,10 +110,10 @@ const MaintenanceManagement = ({ pageTitle }) => {
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={50}
@@ -196,34 +169,13 @@ const MaintenanceManagement = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={currentList.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={currentList}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
       </div>
     </Container>
   );

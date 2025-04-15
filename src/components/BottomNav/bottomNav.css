@@ -1,0 +1,33 @@
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu {
+	bottom: 5rem;
+	z-index: 999;
+}
+
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu .MuiMenuItem-root {
+	min-height: 0;
+	padding-top: 0.75rem;
+	padding-bottom: 0.75rem;
+}
+
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu .menu-heading {
+	display: flex;
+	align-items: center;
+}
+
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu .menu-heading .mnh-icon {
+	font-size: 1.3rem;
+	margin-left: auto;
+}
+
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu .submenu {
+	list-style: none;
+	margin: 1rem 0 0 1rem;
+}
+
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu .submenu .submn-item {
+	color: var(--clr-grey-01);
+}
+
+.MuiPopover-root.MuiMenu-root.MuiModal-root.bottomtab-menu .submenu .submn-item:not(:last-of-type) {
+	margin-bottom: 1rem;
+}

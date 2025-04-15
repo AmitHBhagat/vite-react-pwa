@@ -92,16 +92,19 @@ function AddEditNotice({ pageTitle }) {
   }
 
   async function fetchNoticeDetails() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(noticeService.getNoticeDetails(noticeId));
       const { data } = resp;
-      if (data.success) {
-        setNoticeDetails(data.notice);
-      }
+      if (data.success) respdata = resp.data.notice;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch notice  details catch => ", err);
+      console.error("Notice fetch catch => ", err);
+      const errMsg = err?.response?.data?.message || `Error in fetching notice`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setNoticeDetails(respdata);
   }
 
   const handleFieldChange = (key) => (value) => {

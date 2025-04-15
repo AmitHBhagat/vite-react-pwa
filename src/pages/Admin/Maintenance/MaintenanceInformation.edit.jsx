@@ -137,6 +137,7 @@ function AddMaintenance({ pageTitle }) {
   }, [status]);
 
   const handleFieldChange = (key) => (value) => {
+    console.log(`Updating ${key} to ${value}`);
     frmObj.setFieldValue(key, value);
   };
   const handleCheckboxChange = (key) => (boolean, event) => {
@@ -206,7 +207,7 @@ function AddMaintenance({ pageTitle }) {
                 <Form.ControlLabel>Maintenance Period</Form.ControlLabel>
                 <InputPicker
                   block
-                  name="maintenancPeriod"
+                  name="Maintenance-period"
                   placeholder="Enter Maintenance Period"
                   data={MAINTENANCE_PERIOD_VALUES}
                   value={frmObj.values.maintenancePeriod}
@@ -224,6 +225,7 @@ function AddMaintenance({ pageTitle }) {
                   Residential Charges *
                 </Form.ControlLabel>
                 <Form.Control
+                  // name="residentialCharges"
                   type="number"
                   accepter={InputNumber}
                   placeholder="Enter Residential Charges"
@@ -242,6 +244,7 @@ function AddMaintenance({ pageTitle }) {
                   Commercial Charges *
                 </Form.ControlLabel>
                 <Form.Control
+                  // name="commercialCharges"
                   type="number"
                   accepter={InputNumber}
                   placeholder="Enter Commercial Charges"

@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
   FlexboxGrid,
-  Modal,
-  Grid,
-  Whisper,
-  Tooltip,
 } from "rsuite";
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell } from "rsuite-table";
@@ -30,11 +25,10 @@ import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import AmcService from "../../../services/amc.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { THEME } from "../../../utilities/theme";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
-import { BREAK_POINTS } from "../../../utilities/constants";
+import Paginator from "../../../components/Table/Paginator";
 
 const AmcList = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -60,8 +54,6 @@ const AmcList = ({ pageTitle }) => {
     dispatch(setRouteData({ pageTitle }));
     getAmcs();
   }, [dispatch, pageTitle]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getAmcs = async () => {
     setPageError("");
@@ -267,34 +259,14 @@ const AmcList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
+        <Paginator
+          data={AmcList}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          handleChangeLimit={handleChangeLimit}
+        />
 
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={AmcList?.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
         <DeleteModal
           showBigMsg={true}
           bigMsg={selectedAmc.amcDescription}

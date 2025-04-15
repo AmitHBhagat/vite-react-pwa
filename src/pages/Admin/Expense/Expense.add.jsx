@@ -123,43 +123,57 @@ function AddEditExpense({ pageTitle }) {
   }
 
   async function getExpenseDetails(expId) {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(ExpenseService.getExpenseDetails(expId));
-
       const { data } = resp;
-
-      if (data.success) {
-        setExpenseDetails(data.expense);
-      }
+      if (data.success) respdata = resp.data.expense;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch expense details catch => ", err);
+      console.error("Expense fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching expense`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setExpenseDetails(respdata);
   }
 
-  const getExpenseCategories = async () => {
+  async function getExpenseCategories() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         ExpenseCategoryService.getExpenseCategories(societyId)
       );
-      setExpenseCategory(resp.data.expenseCategorys);
-    } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch expense category", error);
+      const { data } = resp;
+      if (data.success) respdata = resp.data.expenseCategorys;
+    } catch (err) {
+      console.error("Expense fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching expense`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
-  };
+    setExpenseCategory(respdata);
+  }
 
   async function fetchSocietyInfo() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyId));
       const { data } = resp;
-      if (data.success) {
-        setSocietyInfo(data.society.contactInfo);
-      }
+
+      if (data.success) respdata = resp.data.society.contactInfo;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch society contact catch => ", err);
+      console.error("Society fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching society`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setSocietyInfo(respdata);
   }
 
   const handleFieldChange = (key) => (value) => {
@@ -167,6 +181,7 @@ function AddEditExpense({ pageTitle }) {
   };
 
   async function formSubmit() {
+    setPageError("");
     setFrmSubmitted(false);
     const payload = {
       ...frmObj.values,

@@ -55,7 +55,6 @@ function AddEditMeeting({ pageTitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { meetingId } = useParams();
-
   const [pageError, setPageError] = useState("");
   const [meetingDetails, setMeetingDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
@@ -94,24 +93,25 @@ function AddEditMeeting({ pageTitle }) {
   }
 
   async function fetchMeetingDetails(meetingId) {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(MeetingService.getMeetingById(meetingId));
       const { data } = resp;
-      if (data.success) {
-        setMeetingDetails(data.meeting);
-      }
+      if (data.success) respdata = resp.data.meeting;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch meeting  details catch => ", err);
+      console.error("Meeting  details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching meeting  details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setMeetingDetails(respdata);
   }
 
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);
   };
-  // const handleFieldChange = (key) => (value) => {
-  //   frmObj.setFieldValue(key, typeof value === "string" ? value.trim() : value);
-  // };
 
   async function formSubmit() {
     setFrmSubmitted(false);

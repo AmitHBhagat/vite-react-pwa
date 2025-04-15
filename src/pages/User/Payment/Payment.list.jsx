@@ -36,6 +36,7 @@ const PaymentList = ({ pageTitle }) => {
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBills = async () => {
+    setPageError("");
     try {
       const resp = await trackPromise(
         PaymentService.getPaymentsByFlat(
@@ -48,10 +49,12 @@ const PaymentList = ({ pageTitle }) => {
       else setPaymentList([]);
     } catch (err) {
       setPaymentList([]);
-      console.error("Fetch payments catch => ", err);
+      console.error("Payment fetch catch => ", err);
       const errMsg =
         err?.response?.data?.message || `Error in fetching payments`;
       toast.error(errMsg);
+      setPageError(errMsg);
+      return;
     }
   };
 

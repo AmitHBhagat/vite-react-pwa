@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
-  useToaster,
   Affix,
   FlexboxGrid,
 } from "rsuite";
@@ -26,27 +24,34 @@ import { setRouteData } from "../../../stores/appSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import "./billingCharges.css";
-import "../../../layouts/ProtectedLayout.css";
-import { BREAK_POINTS } from "../../../utilities/constants";
+
 const BillsList = ({ pageTitle }) => {
   const dispatch = useDispatch();
-  const toaster = useToaster();
+
   const [bills, setBills] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = React.useState(5);
-  const [page, setPage] = React.useState(1);
   const [topAffixed, setTopAffixed] = useState(false);
-  const [sortColumn, setSortColumn] = React.useState();
-  const [sortType, setSortType] = React.useState();
-  const [loading, setLoading] = React.useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(null);
-  const [pageError, set_pageError] = useState("");
-  const [status, setStatus] = useState(false);
-  const [disable, setDisable] = useState(false);
+  const [pageError, setPageError] = useState("");
+
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -54,99 +59,33 @@ const BillsList = ({ pageTitle }) => {
   }, []);
 
   const getBills = async () => {
+    setPageError("");
+    setLoading(true);
+    let bills = [];
     try {
       const resp = await trackPromise(billChargeService.getCharges());
-      setBills(resp.data.data);
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.error("Failed to fetch bills", error);
-    }
-  };
-
-  const getData = () => {
-    let filteredBills = bills;
-
-    if (searchQuery) {
-      filteredBills = bills.filter((bill) =>
-        bill.billName.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    let sortedBills = [...filteredBills];
-    if (sortColumn && sortType) {
-      sortedBills.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        if (sortType === "asc") {
-          return x - y;
-        } else {
-          return y - x;
-        }
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    const paginatedBills = sortedBills.slice(start, end);
-    paginatedBills.forEach((bill) => {
-      bill.societyName = bill.societyName?.societyName || bill.societyName;
-    });
-    return paginatedBills;
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
-
-  const handleOpenModal = (itemId) => {
-    const bill = bills.find((bill) => bill._id === itemId);
-    setStatus(bill.isActive);
-    setSelectedItemId(itemId);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedItemId(null);
-  };
-
-  async function deleteBill(id) {
-    try {
-      const resp = await trackPromise(billChargeService.deleteCharge(id));
       const { data } = resp;
-
-      if (data?.success === true) {
-        toast.success(data.message || "Bill deleted successfully");
-        getBills();
-        handleCloseModal();
-      }
-    } catch (err) {
-      toast.error(err.response.data.message);
-      console.error("Delete error catch => ", err);
-      if (err.code !== "ERR_NETWORK") {
-        set_pageError(err.response.data.message);
-      } else {
-        set_pageError(err.response.data.message);
-      }
+      if (data.success) bills = data.data;
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || `Error in fetching bills`;
+      toast.error(errMsg);
+      console.error("Failed to fetch bills", errMsg);
+      setPageError(errMsg);
     }
-  }
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
+    setBills(bills);
+    setLoading(false);
+  };
+  const paginatedData = useTableData({
+    data: bills,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "societyName",
+    filterElement2: "",
+  });
 
   return (
     <Container className="">
@@ -174,10 +113,10 @@ const BillsList = ({ pageTitle }) => {
           <Col xs={24}>
             <Table
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               affixHeader={60}
               headerHeight={40}
@@ -241,34 +180,15 @@ const BillsList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={bills.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={bills}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
       </div>
+      <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
     </Container>
   );
 };

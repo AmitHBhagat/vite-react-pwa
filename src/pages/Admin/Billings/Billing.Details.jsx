@@ -4,7 +4,6 @@ import {
   Row,
   Col,
   Table,
-  Pagination,
   Affix,
   Button,
   FlexboxGrid,
@@ -21,11 +20,14 @@ import classNames from "classnames";
 import BillsService from "../../../services/billing.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
-import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
+import { MONTHS } from "../../../utilities/constants";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const BillingDetail = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -36,14 +38,21 @@ const BillingDetail = ({ pageTitle }) => {
   );
   const [year, setYear] = useState(new Date().getFullYear());
   const [topAffixed, setTopAffixed] = useState(false);
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
   const [pageError, setPageError] = useState("");
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
+  const {
+    searchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -52,8 +61,6 @@ const BillingDetail = ({ pageTitle }) => {
   useEffect(() => {
     getBills();
   }, [societyId]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getBills = async () => {
     setPageError("");
@@ -91,8 +98,11 @@ const BillingDetail = ({ pageTitle }) => {
         maintenanceMonth: month,
         maintenanceYear: year,
       };
-      await trackPromise(BillsService.generateBill(payload));
-
+      const res = await trackPromise(BillsService.generateBill(payload));
+      const { data } = res;
+      if (data.success) {
+        toast.success("Bill generated successfully!");
+      }
       getBills();
       setLoading(false);
     } catch (error) {
@@ -125,50 +135,19 @@ const BillingDetail = ({ pageTitle }) => {
     );
   }, [bills, month, year]);
 
-  const getData = () => {
-    if (!sortColumn || !sortType) {
-      return filteredBills.slice().sort((a, b) => a.billNo - b.billNo);
-    }
-
-    const sortedBills = [...filteredBills].sort((a, b) => {
-      let x = 0,
-        y = 0;
-
-      if (sortColumn.startsWith("charge_")) {
-        const chargeId = sortColumn.replace("charge_", "");
-        x = a.billCharges.find((c) => c._id === chargeId)?.value || 0;
-        y = b.billCharges.find((c) => c._id === chargeId)?.value || 0;
-      } else {
-        x = a[sortColumn];
-        y = b[sortColumn];
-
-        if (typeof x === "string") {
-          return sortType === "asc" ? x.localeCompare(y) : y.localeCompare(x);
-        }
-      }
-
-      return sortType === "asc" ? x - y : y - x;
-    });
-
-    return sortedBills;
-  };
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  const paginatedData = useTableData({
+    data: filteredBills,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "billNo",
+  });
 
   const handleExport = async () => {
     try {
-      const exportData = getData();
+      const exportData = paginatedData.rowData;
       const activeHeaders = maintenanceHeaders.filter((h) => h.status);
 
       const headersConfig = [
@@ -248,13 +227,6 @@ const BillingDetail = ({ pageTitle }) => {
     }));
   }, []);
 
-  const finalDataForTable = () => {
-    const sortedData = getData();
-    const start = limit * (page - 1);
-    const end = start + limit;
-    return sortedData.slice(start, end);
-  };
-
   return (
     <Container className="">
       <ScrollToTop />
@@ -309,10 +281,10 @@ const BillingDetail = ({ pageTitle }) => {
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={finalDataForTable()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={40}
@@ -399,34 +371,13 @@ const BillingDetail = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={filteredBills.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={filteredBills}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
       </div>
       <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
     </Container>

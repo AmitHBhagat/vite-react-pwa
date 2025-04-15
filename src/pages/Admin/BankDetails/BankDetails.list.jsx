@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -17,7 +16,6 @@ import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
 import SearchIcon from "@rsuite/icons/Search";
 import { IconButton } from "rsuite";
-import TrashIcon from "@rsuite/icons/Trash";
 import EditIcon from "@rsuite/icons/Edit";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,21 +25,18 @@ import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import BankDetailService from "../../../services/bankDetails.service.js";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
-
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import { THEME } from "../../../utilities/theme";
-import { BREAK_POINTS } from "../../../utilities/constants.js";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const BankDetail = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [bankDetails, setBankDetails] = useState([]);
   const [topAffixed, setTopAffixed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
+  const [pageError, setPageError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selBankDetail, setSelBankDetail] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -49,65 +44,55 @@ const BankDetail = ({ pageTitle }) => {
   const [deleteConsent, setDeleteConsent] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
     getBankDetail();
   }, [dispatch, pageTitle]);
 
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
-
-  const getBankDetail = async () => {
+  async function getBankDetail() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         BankDetailService.getBankDetails(societyId)
       );
-      setBankDetails(resp.data.bankDetail);
-    } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch bank details", error);
+
+      const { data } = resp;
+      if (data.success) respdata = resp.data.bankDetail;
+    } catch (err) {
+      console.error("Bank details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching bank details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
-  };
+    setBankDetails(respdata);
+  }
 
-  const getData = () => {
-    let filteredBankDetails = bankDetails.filter((bankDetails) =>
-      bankDetails.accountHolderName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-    );
-
-    if (sortColumn && sortType) {
-      filteredBankDetails.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        return sortType === "asc" ? x - y : y - x;
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    return filteredBankDetails.slice(start, end);
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  const paginatedData = useTableData({
+    data: bankDetails,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "accountHolderName",
+    filterElement2: "",
+  });
 
   const handleOpenModal = (item) => {
     setSelBankDetail(item);
@@ -191,10 +176,10 @@ const BankDetail = ({ pageTitle }) => {
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={50}
@@ -257,11 +242,6 @@ const BankDetail = ({ pageTitle }) => {
                           icon={<EditIcon color={THEME[0].CLR_PRIMARY} />}
                         />
                       </Link>
-                      {/* <IconButton
-                        title="delete"
-                        icon={<TrashIcon color="red" />}
-                        onClick={() => handleOpenModal(rowData)}
-                      /> */}
                     </div>
                   )}
                 </Cell>
@@ -269,34 +249,13 @@ const BankDetail = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={bankDetails.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={bankDetails}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
 
         <DeleteModal
           isOpen={modalOpen}
@@ -306,6 +265,8 @@ const BankDetail = ({ pageTitle }) => {
           deleteErr={deleteError}
           consentRequired={deleteConsent}
         />
+
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>
   );

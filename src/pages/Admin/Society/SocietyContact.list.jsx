@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -21,25 +20,21 @@ import EditIcon from "@rsuite/icons/Edit";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import classNames from "classnames";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import SocietyService from "../../../services/society.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { THEME } from "../../../utilities/theme";
-import classNames from "classnames";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 import "./society.css";
-import { BREAK_POINTS } from "../../../utilities/constants";
 
 const SocietyContact = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [societyInfo, setSocietyInfo] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selSociety, setSelSociety] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -48,6 +43,20 @@ const SocietyContact = ({ pageTitle }) => {
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
   const [topAffixed, setTopAffixed] = useState(false);
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
+  const [pageError, setPageError] = useState("");
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -55,64 +64,39 @@ const SocietyContact = ({ pageTitle }) => {
 
   useEffect(() => {
     if (societyId) {
-      fetchSocietyInfo(societyId);
+      fetchSocietyInfo();
     }
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
-
   async function fetchSocietyInfo() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyId));
       const { data } = resp;
       if (data.success) {
-        setSocietyInfo(data.society.contactInfo);
+        respdata = data.society.contactInfo;
       }
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch society contact catch => ", err);
+      console.error("Society contact fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching society contact`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setSocietyInfo(respdata);
   }
 
-  const getData = () => {
-    let filteredSocietyContact = societyInfo.filter((societycontact) =>
-      societycontact.contactName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-    );
-
-    if (sortColumn && sortType) {
-      filteredSocietyContact.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        return sortType === "asc" ? x - y : y - x;
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    return filteredSocietyContact.slice(start, end);
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  const paginatedData = useTableData({
+    data: societyInfo,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "contactName",
+    filterElement2: "",
+  });
 
   const handleOpenModal = (item) => {
     setSelSociety(item);
@@ -182,16 +166,15 @@ const SocietyContact = ({ pageTitle }) => {
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Affix>
-
         <Row gutter={0} className="section-mb">
           <Col xs={24}>
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={40}
@@ -250,34 +233,13 @@ const SocietyContact = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={societyInfo.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={societyInfo}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
 
         <DeleteModal
           isOpen={modalOpen}
@@ -287,6 +249,7 @@ const SocietyContact = ({ pageTitle }) => {
           deleteErr={deleteError}
           consentRequired={deleteConsent}
         />
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>
   );

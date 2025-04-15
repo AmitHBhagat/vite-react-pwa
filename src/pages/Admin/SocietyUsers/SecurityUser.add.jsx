@@ -83,6 +83,7 @@ function SecurityAddUser({ pageTitle }) {
   }
 
   async function fetchSecurityDetails(securityId) {
+    setPageError("");
     try {
       const resp = await trackPromise(adminServices.getUserById(securityId));
       const { data } = resp;
@@ -104,6 +105,7 @@ function SecurityAddUser({ pageTitle }) {
   };
 
   async function formSubmit() {
+    setPageError("");
     setFrmSubmitted(true);
     const payload = { ...frmObj.values };
     try {

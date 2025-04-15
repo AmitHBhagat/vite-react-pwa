@@ -30,7 +30,11 @@ import VisitorService from "../../../services/visitor.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
-import { formatDateTime } from "../../../utilities/formatDate";
+import {
+  formatDateTime,
+  getEndOfDay,
+  getStartOfDay,
+} from "../../../utilities/formatDate";
 import EditIcon from "@rsuite/icons/Edit";
 import TrashIcon from "@rsuite/icons/Trash";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
@@ -55,26 +59,36 @@ const VisitorList = ({ pageTitle }) => {
   const [deleteConsent, setDeleteConsent] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteError, setDeleteError] = useState("");
-  const [dateRange, setDateRange] = useState(null);
+  const [dateRange, setDateRange] = useState([new Date(), new Date()]);
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
   }, [dispatch, pageTitle]);
 
+  // useEffect(() => {
+  //   if (societyId) {
+  //     getVisitors();
+  //   }
+  // }, [societyId]);
+
   useEffect(() => {
-    if (societyId) {
-      getVisitors(societyId);
+    if (societyId && dateRange) {
+      getVisitors(dateRange);
     }
-  }, [authState.selectedFlat]);
+  }, [societyId, dateRange]);
 
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
-  const getVisitors = async (societyId) => {
+  const getVisitors = async (range) => {
+    const startDate = getStartOfDay(range[0]);
+    const endDate = getEndOfDay(range[1]);
+    const payload = { startDate, endDate };
+
     setPageError("");
     let respData = [];
     try {
       const resp = await trackPromise(
-        VisitorService.getSocietyVisitors(societyId)
+        VisitorService.getSocietyVisitorflatwise(societyId, payload)
       );
       const { data } = resp;
       if (data.success) respData = resp.data.visitors;
@@ -89,19 +103,9 @@ const VisitorList = ({ pageTitle }) => {
   };
 
   const getData = () => {
-    let filteredList = visitors.filter((itm) => {
-      const matchName = itm.visitorName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-
-      const createdAt = new Date(itm.createdAt);
-      const matchDate = dateRange
-        ? createdAt >= new Date(dateRange[0].setHours(0, 0, 0, 0)) &&
-          createdAt <= new Date(dateRange[1].setHours(23, 59, 59, 999))
-        : true;
-
-      return matchName && matchDate;
-    });
+    let filteredList = visitors.filter((itm) =>
+      itm.visitorName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (sortColumn && sortType) {
       filteredList.sort((a, b) => {
@@ -210,6 +214,7 @@ const VisitorList = ({ pageTitle }) => {
                     value={dateRange}
                     onChange={setDateRange}
                     className="date-picker"
+                    cleanable={false}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -371,30 +376,37 @@ const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
       <Modal.Body className="pd-b-0">
         <Grid fluid className="visitor-grid">
           <Row gutter={16}>
-            <Col xs={24} md={15}>
+            <Col xs={24} md={12}>
               <div className="details-grp">
                 <div className="lbl">Visitor Name</div>
                 <div className="val">{dataObj.visitorName}</div>
               </div>
+            </Col>
+            <Col xs={24} md={12}>
               <div className="details-grp">
-                <div className="lbl">Visitor Phone</div>
+                <div className="lbl">Vistor Phone</div>
                 <div className="val">{dataObj.visitorPhone}</div>
               </div>
+            </Col>
+            <Col xs={24} md={12}>
               <div className="details-grp">
                 <div className="lbl">Flat No</div>
                 <div className="val">{dataObj.flat.flatNo}</div>
               </div>
+            </Col>
+            <Col xs={24} md={12}>
               <div className="details-grp">
                 <div className="lbl">Flat Contact</div>
                 <div className="val">{dataObj.flatContact}</div>
               </div>
+            </Col>
+            <Col xs={24}>
               <div className="details-grp">
                 <div className="lbl">Description</div>
-                <div className="val desc">{dataObj.description}</div>
+                <div className="val">{dataObj.description}</div>
               </div>
             </Col>
-
-            <Col xs={24} md={9}>
+            <Col xs={24}>
               {dataObj.visitorImage?.fileurl ? (
                 <div className="details-grp">
                   <div className="lbl">Visitor Image</div>
@@ -402,6 +414,7 @@ const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
                     <img
                       src={dataObj.visitorImage.fileurl}
                       alt={dataObj.visitorImage.title}
+                      style={{ maxWidth: "10rem", maxHeight: "10rem" }}
                     />
                   </div>
                 </div>

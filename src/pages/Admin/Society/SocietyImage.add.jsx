@@ -6,9 +6,12 @@ import SocietyService from "../../../services/society.service";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import { setRouteData } from "../../../stores/appSlice";
-import "./society.css";
 import CameraRetroIcon from "@rsuite/icons/legacy/CameraRetro";
+import "./society.css";
 
 function AddSocietyImage({ pageTitle }) {
   const dispatch = useDispatch();
@@ -26,25 +29,30 @@ function AddSocietyImage({ pageTitle }) {
 
   useEffect(() => {
     if (societyId) {
-      fetchSocietyInfo(societyId);
+      fetchSocietyInfo();
     }
   }, [societyId]);
 
-  async function fetchSocietyInfo() {
+  const fetchSocietyInfo = async () => {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyId));
       const { data } = resp;
       if (data.success) {
-        setSocietyInfo(data.society.societyName);
+        respdata = data.society.societyName;
       }
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch society information catch => ", err);
+      console.error("Society information fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching society information`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
-  }
+    setSocietyInfo(respdata);
+  };
 
   const handleFileChange = (fileList) => {
-    // Clear previous file and preview
     if (fileList.length === 0) {
       setFileList([]);
       setPreviewImage(null);
@@ -56,6 +64,7 @@ function AddSocietyImage({ pageTitle }) {
   };
 
   const handleSubmit = async (e) => {
+    setPageError("");
     const societyId = authState?.user?.societyName;
     const rename_file = `${societyInfo}___${fileList[0]?.blobFile?.name}`;
 
@@ -82,8 +91,11 @@ function AddSocietyImage({ pageTitle }) {
         toast.error("Failed to upload file.");
       }
     } catch (err) {
-      console.error("Society save error catch => ", err);
-      toast.error(err.response.data.message);
+      console.error("Society image save error catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in  creating the Society Image`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   };
 
@@ -146,7 +158,7 @@ function AddSocietyImage({ pageTitle }) {
             )}
           </Row>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </Form>
     </div>
   );

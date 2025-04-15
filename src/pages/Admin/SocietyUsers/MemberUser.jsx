@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -32,15 +31,14 @@ import classNames from "classnames";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import { BREAK_POINTS } from "../../../utilities/constants";
 
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
+
 const MemberUsers = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [userInfo, setUserInfo] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selSociety, setSelSociety] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -50,6 +48,19 @@ const MemberUsers = ({ pageTitle }) => {
   const societyId = authState?.user?.societyName;
   const [topAffixed, setTopAffixed] = useState(false);
   const [pageError, setPageError] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -57,13 +68,13 @@ const MemberUsers = ({ pageTitle }) => {
 
   useEffect(() => {
     if (societyId) {
-      fetchUserInfo(societyId);
+      fetchUserInfo();
     }
   }, [societyId]);
 
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
-  const fetchUserInfo = async (societyId) => {
+  const fetchUserInfo = async () => {
     setPageError("");
     let respdata = [];
     try {
@@ -81,45 +92,16 @@ const MemberUsers = ({ pageTitle }) => {
     setUserInfo(respdata);
   };
 
-  const getData = () => {
-    let filteredUserInfo = userInfo.filter(
-      (userinfo) =>
-        userinfo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        userinfo.mobile.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    if (sortColumn && sortType) {
-      filteredUserInfo.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        return sortType === "asc" ? x - y : y - x;
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    return filteredUserInfo.slice(start, end);
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  const paginatedData = useTableData({
+    data: userInfo,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "name",
+    filterElement2: "mobile",
+  });
 
   const handleOpenModal = (item) => {
     setSelSociety(item);
@@ -194,16 +176,15 @@ const MemberUsers = ({ pageTitle }) => {
             </FlexboxGrid.Item>
           </FlexboxGrid>
         </Affix>
-
         <Row gutter={0} className="section-mb">
           <Col xs={24}>
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={40}
@@ -262,35 +243,13 @@ const MemberUsers = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={userInfo.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
-
+        <Paginator
+          data={userInfo}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
         <DeleteModal
           isOpen={modalOpen}
           onClose={handleCloseModal}
@@ -299,7 +258,6 @@ const MemberUsers = ({ pageTitle }) => {
           deleteErr={deleteError}
           consentRequired={deleteConsent}
         />
-
         <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>

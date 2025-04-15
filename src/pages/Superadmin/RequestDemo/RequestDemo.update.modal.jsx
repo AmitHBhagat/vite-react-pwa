@@ -93,7 +93,10 @@ const RequestDemoUpdateModal = ({
   useEffect(() => {
     if (isOpen) {
       formik.setValues({
-        status: requestDemoDetails.status || "",
+        status:
+          requestDemoDetails.status === "Demo Requested"
+            ? ""
+            : requestDemoDetails.status || "",
         feedback: requestDemoDetails.feedback || "",
         demoScheduledDate:
           requestDemoDetails.status === "Demo Scheduled"

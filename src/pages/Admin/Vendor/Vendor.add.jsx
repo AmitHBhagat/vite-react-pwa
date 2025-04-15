@@ -138,7 +138,7 @@ function AddEditVendor({ pageTitle }) {
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);
   };
-  console.log("object value", frmObj.values);
+
   async function formSubmit() {
     setFrmSubmitted(false);
     const payload = {

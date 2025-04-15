@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -26,10 +25,12 @@ import FlatService from "../../../services/flat.service";
 import adminService from "../../../services/admin.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
-import { BREAK_POINTS } from "../../../utilities/constants";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const FlatAssociation = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -37,17 +38,24 @@ const FlatAssociation = ({ pageTitle }) => {
   const [getUser, setGetUser] = useState({});
   const [flats, setFlats] = useState([]);
   const [topAffixed, setTopAffixed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [pageError, setPageError] = useState("");
   const [deleteUser, setDeleteUser] = useState([]);
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
 
@@ -58,8 +66,6 @@ const FlatAssociation = ({ pageTitle }) => {
   useEffect(() => {
     getFlats();
   }, [societyId]);
-
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getFlats = async () => {
     setPageError("");
@@ -79,7 +85,16 @@ const FlatAssociation = ({ pageTitle }) => {
       setFlats(flats);
     }
   };
-
+  const paginatedData = useTableData({
+    data: flats,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "flatNo",
+    filterElement2: "ownerName",
+  });
   const getData = () => {
     let filteredFlats = flats.filter(
       (flat) =>
@@ -234,10 +249,10 @@ const FlatAssociation = ({ pageTitle }) => {
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={40}
@@ -327,34 +342,13 @@ const FlatAssociation = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={flats.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={flats}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
         <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
 
         <DeleteModal

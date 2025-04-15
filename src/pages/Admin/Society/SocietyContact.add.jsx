@@ -17,7 +17,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setRouteData } from "../../../stores/appSlice";
-import ErrorMessage from "../../../components/Form/ErrorMessage";
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import FlexboxGridItem from "rsuite/esm/FlexboxGrid/FlexboxGridItem";
 import { POSITION } from "../../../utilities/constants";
 
@@ -43,15 +45,15 @@ function AddSocietyContact({ pageTitle }) {
 
   function getValidationSchema() {
     return Yup.object().shape({
-      contactName: Yup.string().required("Contact Name is required"),
+      contactName: Yup.string().required("Contact name is required"),
       mobile: Yup.string()
 
         .min(10, "Your mobile must be at least 10 characters long")
         .max(10, "Your mobile must be max 10 characters long")
-        .required("Mobile is Required"),
+        .required("Mobile is required"),
       email: Yup.string()
         .email("Email is invalid")
-        .required("Email is Required"),
+        .required("Email is required"),
       position: Yup.string().required("Position is required"),
     });
   }
@@ -92,24 +94,29 @@ function AddSocietyContact({ pageTitle }) {
     frmObj.setValues(formobj);
   }
 
-  async function fetchSocietyContactDetails() {
+  const fetchSocietyContactDetails = async () => {
+    setPageError("");
+    let respData = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyId));
       const { data } = resp;
-      if (data.success) {
-        setSocietyContactDetails(data.society.contactInfo);
-      }
+      if (data.success) respData = resp.data.society.contactInfo;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch society contact  details catch => ", err);
+      console.error("Request query fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching request query`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
-  }
+    setSocietyContactDetails(respData);
+  };
 
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);
   };
 
   async function formSubmit() {
+    setPageError("");
     setFrmSubmitted(false);
     const payload = { ...frmObj.values };
 
@@ -129,11 +136,16 @@ function AddSocietyContact({ pageTitle }) {
       if (data.success) {
         toast.success("Society Contact saved successfully!");
         navigate(-1);
-      } else {
       }
     } catch (err) {
-      console.error("society contact save error catch => ", err);
-      toast.error(err.response.data.message);
+      console.error("Society Contact save error catch => ", err);
+      const errMsg =
+        err?.response?.data?.message ||
+        `Error in ${
+          societyContactId ? "updating" : "creating"
+        } the Society Contact`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -224,7 +236,7 @@ function AddSocietyContact({ pageTitle }) {
               </Form.Group>
             </Col>
           </Row>
-
+          <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
           <FlexboxGrid justify="end">
             <FlexboxGridItem>
               <Button appearance="primary" size="lg" type="submit">

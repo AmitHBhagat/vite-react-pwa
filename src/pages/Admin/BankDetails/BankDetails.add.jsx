@@ -20,7 +20,9 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import BankDetailService from "../../../services/bankDetails.service.js";
 import { setRouteData } from "../../../stores/appSlice";
-import ErrorMessage from "../../../components/Form/ErrorMessage";
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import { ACCOUNTTYPE } from "../../../utilities/constants";
 
 function getFormSchema() {
@@ -53,7 +55,7 @@ function AddEditBankDetail({ pageTitle }) {
   const navigate = useNavigate();
   const { bankDetailId } = useParams();
   const [pageError, setPageError] = useState("");
-  const [bankDetailDetails, setbankDetailDetails] = useState({});
+  const [bankDetails, setbankDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
@@ -67,15 +69,15 @@ function AddEditBankDetail({ pageTitle }) {
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
     if (bankDetailId) {
-      fetchBankDetailDetails(bankDetailId);
+      fetchBankDetails(bankDetailId);
     }
   }, [bankDetailId]);
 
   useEffect(() => {
-    if (bankDetailDetails._id) {
+    if (bankDetails._id) {
       populateForm();
     }
-  }, [bankDetailDetails]);
+  }, [bankDetails]);
 
   function navigateBack() {
     navigate(-1);
@@ -84,25 +86,29 @@ function AddEditBankDetail({ pageTitle }) {
   function populateForm() {
     const formobj = {
       ...frmObj.values,
-      ...bankDetailDetails,
+      ...bankDetails,
     };
     frmObj.setValues(formobj);
   }
 
-  async function fetchBankDetailDetails(bankDetailId) {
+  async function fetchBankDetails(bankDetailId) {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         BankDetailService.getBankDetailDetails(bankDetailId)
       );
 
       const { data } = resp;
-      if (data.success) {
-        setbankDetailDetails(data.bankDetail);
-      }
+      if (data.success) respdata = resp.data.bankDetail;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch amenity details catch => ", err);
+      console.error("Bank details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching bank details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setbankDetails(respdata);
   }
 
   const handleFieldChange = (key) => (value) => {
@@ -111,6 +117,7 @@ function AddEditBankDetail({ pageTitle }) {
 
   async function formSubmit() {
     setFrmSubmitted(false);
+    setPageError("");
     const payload = { ...frmObj.values, societyId: societyId };
 
     try {
@@ -124,11 +131,14 @@ function AddEditBankDetail({ pageTitle }) {
       if (data.success) {
         toast.success("Bank Detail saved successfully!");
         navigateBack();
-      } else {
       }
     } catch (err) {
-      console.error("Bank Detail save error catch => ", err);
-      toast.error(err.response.data.message);
+      console.error("Bank detail save error catch => ", err);
+      const errMsg =
+        err?.response?.data?.message ||
+        `Error in ${societyId ? "updating" : "creating"} the bank detail`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -280,7 +290,7 @@ function AddEditBankDetail({ pageTitle }) {
             </FlexboxGridItem>
           </FlexboxGrid>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </Form>
     </div>
   );

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Table,
   Input,
-  Pagination,
   InputGroup,
   Affix,
   Button,
@@ -21,7 +20,6 @@ import Column from "rsuite/esm/Table/TableColumn";
 import SearchIcon from "@rsuite/icons/Search";
 import { IconButton } from "rsuite";
 import TrashIcon from "@rsuite/icons/Trash";
-import EditIcon from "@rsuite/icons/Edit";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -29,20 +27,16 @@ import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import BillingAdjustmentService from "../../../services/billingAdjustments.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
-import { useSmallScreen } from "../../../utilities/useWindowSize";
-import { THEME } from "../../../utilities/theme";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import classNames from "classnames";
-import { BREAK_POINTS } from "../../../utilities/constants";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const BillingAdjustments = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [billingAdjust, setBillingAdjust] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selBillAdjust, setBillAdjust] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
@@ -52,6 +46,20 @@ const BillingAdjustments = ({ pageTitle }) => {
   const societyId = authState?.user?.societyName;
   const [topAffixed, setTopAffixed] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [pageError, setPageError] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -63,66 +71,35 @@ const BillingAdjustments = ({ pageTitle }) => {
     }
   }, [societyId]);
 
-  const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
-
   async function fetchBillingAdjust() {
+    setPageError("");
+    let respData = [];
     try {
       const resp = await trackPromise(
         BillingAdjustmentService.getAllBillAdjustments(societyId)
       );
       const { data } = resp;
-      if (data.success) {
-        setBillingAdjust(data.billAdjustments);
-      }
+      if (data.success) respData = resp.data.billAdjustments;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch billing adjustment catch => ", err);
+      console.error("Billing adjustment fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching billing adjustment`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setBillingAdjust(respData);
   }
 
-  const getData = () => {
-    let filteredBillingAdjust = billingAdjust.filter(
-      (billingAdjust) =>
-        billingAdjust.flatNo
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        billingAdjust.adjustmentType
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-    );
-
-    if (sortColumn && sortType) {
-      filteredBillingAdjust.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === "string") {
-          x = x.charCodeAt();
-        }
-        if (typeof y === "string") {
-          y = y.charCodeAt();
-        }
-        return sortType === "asc" ? x - y : y - x;
-      });
-    }
-
-    const start = limit * (page - 1);
-    const end = start + limit;
-    return filteredBillingAdjust.slice(start, end);
-  };
-
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
+  const paginatedData = useTableData({
+    data: billingAdjust,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "flatNo",
+    filterElement2: "adjustmentType",
+  });
 
   const handleOpenModal = (item) => {
     setBillAdjust(item);
@@ -209,10 +186,10 @@ const BillingAdjustments = ({ pageTitle }) => {
             <Table
               affixHeader={60}
               wordWrap="break-word"
-              data={getData()}
+              data={paginatedData.limitData}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               autoHeight
               headerHeight={40}
@@ -273,34 +250,13 @@ const BillingAdjustments = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={billingAdjust.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={billingAdjust}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
 
         <DeleteModal
           isOpen={modalOpen}
@@ -315,6 +271,7 @@ const BillingAdjustments = ({ pageTitle }) => {
           onClose={handleCloseDetailsModal}
           dataObj={selBillAdjust}
         />
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>
   );

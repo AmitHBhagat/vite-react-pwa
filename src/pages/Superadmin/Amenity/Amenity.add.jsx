@@ -19,10 +19,10 @@ import { useDispatch } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setRouteData } from "../../../stores/appSlice";
-import ErrorMessage from "../../../components/Form/ErrorMessage";
-
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import "react-quill/dist/quill.snow.css";
-
 import FlexboxGridItem from "rsuite/esm/FlexboxGrid/FlexboxGridItem";
 import AmenityService from "../../../services/amenity.service";
 
@@ -51,7 +51,6 @@ function AddAmenity({ pageTitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { amenityId } = useParams();
-
   const [pageError, setPageError] = useState("");
   const [AmenityDetails, setAmenityDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
@@ -84,17 +83,20 @@ function AddAmenity({ pageTitle }) {
   }
 
   async function fetchAmenityDetails(amenityId) {
+    setPageError("");
+    let respData = [];
     try {
       const resp = await trackPromise(AmenityService.getAmenityById(amenityId));
-
       const { data } = resp;
-      if (data.success) {
-        setAmenityDetails(data.amenity);
-      }
+      if (data.success) respData = data.amenity;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch amenity details catch => ", err);
+      console.error("Amenity details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching amenity details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setAmenityDetails(respData);
   }
 
   const handleFieldChange = (key) => (value) => {

@@ -27,7 +27,6 @@ function AddMemberUser({ pageTitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userId } = useParams();
-
   const [pageError, setPageError] = useState("");
   const [userDetails, setUserDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
@@ -74,7 +73,7 @@ function AddMemberUser({ pageTitle }) {
 
   useEffect(() => {
     if (userId) {
-      fetchuserDetails(userId);
+      fetchuserDetails();
     }
   }, [userId]);
 
@@ -93,16 +92,20 @@ function AddMemberUser({ pageTitle }) {
   }
 
   async function fetchuserDetails() {
+    setPageError("");
+    let respData = [];
     try {
       const resp = await trackPromise(adminService.getUserDetails(userId));
       const { data } = resp;
-      if (data.success) {
-        setUserDetails(data.user);
-      }
+      if (data.success) respData = data.user;
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
-      console.error("Fetch User details catch => ", err);
+      console.error("User details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching user details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setUserDetails(respData);
   }
 
   const handleFieldChange = (key) => (value) => {
@@ -123,7 +126,6 @@ function AddMemberUser({ pageTitle }) {
       if (data.success) {
         toast.success("User saved successfully!");
         navigate(-1);
-      } else {
       }
     } catch (err) {
       console.error("User save error catch => ", err);

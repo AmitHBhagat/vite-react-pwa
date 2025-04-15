@@ -26,11 +26,11 @@ function MemberUserDetails({ pageTitle }) {
 
   useEffect(() => {
     if (userId) {
-      fetchUserDetails(userId);
+      fetchUserDetails();
     }
   }, [userId]);
 
-  const fetchUserDetails = async (userId) => {
+  const fetchUserDetails = async () => {
     setPageError("");
     let respdata = [];
     try {

@@ -17,18 +17,19 @@ import { useDispatch } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setRouteData } from "../../../stores/appSlice";
-import ErrorMessage from "../../../components/Form/ErrorMessage";
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import "react-quill/dist/quill.snow.css";
-import "./user.css";
 import FlexboxGridItem from "rsuite/esm/FlexboxGrid/FlexboxGridItem";
 import useFetchSocieties from "../../../utilities/useFetchSocieties";
 import { ROLE } from "../../../utilities/constants";
+import "./user.css";
 
 function AddUser({ pageTitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userId } = useParams();
-
   const [pageError, setPageError] = useState("");
   const [userDetails, setUserDetails] = useState({});
   const [frmSubmitted, setFrmSubmitted] = useState(false);
@@ -38,14 +39,13 @@ function AddUser({ pageTitle }) {
       societyName: "",
       password: "",
       role: "",
-
       isActive: true,
     };
   }
 
   function getValidationSchema() {
     return Yup.object().shape({
-      userName: Yup.string().required("User Name is required"),
+      userName: Yup.string().required("User name is required"),
       societyName: Yup.string().required("User society name is required"),
       password: Yup.string().when([], {
         is: () => !userDetails._id,
@@ -67,7 +67,7 @@ function AddUser({ pageTitle }) {
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
     if (userId) {
-      fetchuserDetails(userId);
+      fetchuserDetails();
     }
   }, [userId]);
 
@@ -81,7 +81,7 @@ function AddUser({ pageTitle }) {
     const formobj = {
       ...frmObj.values,
       ...userDetails,
-      societyName: userDetails.societyName._id,
+      societyName: userDetails?.societyName?._id,
       userSubscriptionStartDate: new Date(
         userDetails.userSubscriptionStartDate
       ),
@@ -90,17 +90,21 @@ function AddUser({ pageTitle }) {
     frmObj.setValues(formobj);
   }
 
-  async function fetchuserDetails(userid) {
+  async function fetchuserDetails() {
+    setPageError("");
     try {
-      const resp = await trackPromise(adminServices.getUserById(userid));
+      const resp = await trackPromise(adminServices.getUserById(userId));
       const { data } = resp;
       if (data.success) {
         const user = data.adminUser;
         setUserDetails(user);
       }
     } catch (err) {
-      toast.error(err.response.data.message);
-      console.error("Fetch user details catch => ", err);
+      console.error("User details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching user details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -109,6 +113,7 @@ function AddUser({ pageTitle }) {
   };
 
   async function formSubmit() {
+    setPageError("");
     setFrmSubmitted(false);
     const payload = { ...frmObj.values };
     try {
@@ -123,9 +128,14 @@ function AddUser({ pageTitle }) {
       }
     } catch (err) {
       console.error("User save error catch => ", err);
-      toast.error(err.response.data.message);
+      const errMsg =
+        err?.response?.data?.message ||
+        `Error in ${userId ? "updating" : "creating"} the user`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
+
   const { societies, error: fetchError, refresh } = useFetchSocieties();
 
   const modifySocieties = societies.map((soc) => {
@@ -181,7 +191,7 @@ function AddUser({ pageTitle }) {
                 />
               </Form.Group>
             </Col>
-            {!userDetails._id && (
+            {!userDetails?._id && (
               <Col xs={16} md={6}>
                 <Form.Group controlId="password">
                   <Form.ControlLabel className="mandatory-field">
@@ -221,7 +231,7 @@ function AddUser({ pageTitle }) {
               </Form.Group>
             </Col>
           </Row>
-
+          <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
           <FlexboxGrid justify="end">
             <FlexboxGridItem>
               <Button appearance="primary" size="lg" type="submit">

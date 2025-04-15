@@ -14,7 +14,7 @@ import {
 import { trackPromise } from "react-promise-tracker";
 import { Cell, HeaderCell, ColumnGroup } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
-
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import classNames from "classnames";
@@ -70,19 +70,22 @@ const IncomeExpenditureList = ({ pageTitle }) => {
   }, [societyId]);
 
   async function fetchSocietyInfo() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(societyService.getSocietyById(societyId));
       const { data } = resp;
       if (data.success) {
-        setSocietyInfo(data.society.societyName);
+        respdata = data.society.societyName;
       }
     } catch (err) {
+      console.error("society contact fetch catch => ", err);
       const errMsg =
-        err?.response?.data?.message ||
-        "Error in deleting the billing adjustment";
+        err?.response?.data?.message || `Error in fetching society contact`;
       toast.error(errMsg);
-      console.error("Fetch society contact catch => ", errMsg);
+      setPageError(errMsg);
     }
+    setSocietyInfo(respdata);
   }
 
   function getFormSchema() {
@@ -480,6 +483,7 @@ const IncomeExpenditureList = ({ pageTitle }) => {
             onChangeLimit={handleChangeLimit}
           />
         </div>
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>
   );

@@ -26,7 +26,9 @@ import CloseOutlineIcon from "@rsuite/icons/CloseOutline";
 import SocietyService from "../../../services/society.service";
 import AmenityService from "../../../services/amenity.service";
 import { setRouteData } from "../../../stores/appSlice";
-import ErrorMessage from "../../../components/Form/ErrorMessage";
+import ErrorMessage, {
+  PageErrorMessage,
+} from "../../../components/Form/ErrorMessage";
 import { MONTHS } from "../../../utilities/constants";
 import { THEME } from "../../../utilities/theme";
 import "./society.css";
@@ -136,19 +138,26 @@ function SocietyInfoEdit({ pageTitle }) {
   }
 
   async function fetchSocietyInfo(societyid) {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyid));
       const { data } = resp;
       if (data.success) {
-        setSocietyInfo(data.society);
+        respdata = data.society;
       }
     } catch (err) {
-      toast.error(err.response.data.message);
-      console.error("Fetch society details catch => ", err);
+      console.error("Society details fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching society details`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setSocietyInfo(respdata);
   }
 
   async function fetchAmenities() {
+    setPageError("");
     try {
       const resp = await trackPromise(AmenityService.getAmenityList());
       const { data } = resp;
@@ -165,8 +174,11 @@ function SocietyInfoEdit({ pageTitle }) {
         );
       }
     } catch (err) {
-      toast.error(err.response.data.message);
-      console.error("Fetch amenity list catch => ", err);
+      console.error("Amenity list fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching amenity list`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -184,6 +196,7 @@ function SocietyInfoEdit({ pageTitle }) {
   };
 
   async function formSubmit() {
+    setPageError("");
     setFrmSubmitted(false);
     const payload = {
       ...frmObj.values,
@@ -203,7 +216,10 @@ function SocietyInfoEdit({ pageTitle }) {
       }
     } catch (err) {
       console.error("Society save error catch => ", err);
-      toast.error(err.response.data.message);
+      const errMsg =
+        err?.response?.data?.message || "Error in updating  the Society";
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -468,7 +484,7 @@ function SocietyInfoEdit({ pageTitle }) {
             </FlexboxGridItem>
           </FlexboxGrid>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </Form>
     </div>
   );

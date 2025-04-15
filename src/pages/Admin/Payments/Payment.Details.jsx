@@ -30,6 +30,10 @@ import { BREAK_POINTS, MONTHS } from "../../../utilities/constants";
 import { formatDate } from "../../../utilities/formatDate";
 import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
 import { exportToExcel } from "../../../utilities/ExportDataToExcelOrPDF";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
 
 const PaymentDetail = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -40,11 +44,7 @@ const PaymentDetail = ({ pageTitle }) => {
   );
   const [year, setYear] = useState(new Date().getFullYear());
   const [topAffixed, setTopAffixed] = useState(false);
-  const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortType, setSortType] = useState();
-  const [loading, setLoading] = useState(false);
+
   const [generateReceiptLoading, setGenerateReceiptLoading] = useState([
     false,
     "null",
@@ -55,6 +55,19 @@ const PaymentDetail = ({ pageTitle }) => {
   const [deleteError, setDeleteError] = useState("");
   const [deleteConsent, setDeleteConsent] = useState(false);
   const [pageError, setPageError] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;

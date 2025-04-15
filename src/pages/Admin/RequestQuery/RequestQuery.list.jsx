@@ -30,6 +30,7 @@ import { useSmallScreen } from "../../../utilities/useWindowSize";
 import { formatDate } from "../../../utilities/formatDate";
 import { THEME } from "../../../utilities/theme";
 import { BREAK_POINTS } from "../../../utilities/constants";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 
 const RequestQueries = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ const RequestQueries = ({ pageTitle }) => {
   const [selQuery, setSelQuery] = useState({});
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [pageError, setPageError] = useState("");
   const [deleteConsent, setDeleteConsent] = useState(false);
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
@@ -60,15 +62,22 @@ const RequestQueries = ({ pageTitle }) => {
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getRequestQueries = async () => {
+    setPageError("");
+    let respData = [];
     try {
       const resp = await trackPromise(
         RequestQueryService.getQueries(societyId)
       );
-      setRequestQueries(resp.data.queriess);
-    } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch request queries", error);
+      const { data } = resp;
+      if (data.success) respData = resp.data.queriess;
+    } catch (err) {
+      console.error("Request query fetch catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching request query`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
+    setRequestQueries(respData);
   };
 
   const getData = () => {
@@ -290,6 +299,8 @@ const RequestQueries = ({ pageTitle }) => {
           deleteErr={deleteError}
           consentRequired={deleteConsent}
         />
+
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>
   );

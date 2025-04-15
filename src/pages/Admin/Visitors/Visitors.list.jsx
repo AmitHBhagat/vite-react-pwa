@@ -32,10 +32,12 @@ import FlatManagementService from "../../../services/flat.service";
 import { setRouteData } from "../../../stores/appSlice";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
-import { formatDateTime } from "../../../utilities/formatDate";
-import EditIcon from "@rsuite/icons/Edit";
-import TrashIcon from "@rsuite/icons/Trash";
-import DeleteModal from "../../../components/DeleteModal/Delete.Modal";
+import {
+  formatDateTime,
+  getEndOfDay,
+  getStartOfDay,
+} from "../../../utilities/formatDate";
+
 import { BREAK_POINTS } from "../../../utilities/constants";
 
 const VisitorListAdmin = ({ pageTitle }) => {
@@ -54,7 +56,7 @@ const VisitorListAdmin = ({ pageTitle }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedVisitor, setSelectedVisitor] = useState();
   const [flats, setFlats] = useState([]);
-  const [dateRange, setDateRange] = useState("");
+  const [dateRange, setDateRange] = useState([new Date(), new Date()]);
   const [selectedFlatId, setSelectedFlatId] = useState("");
 
   useEffect(() => {
@@ -71,8 +73,8 @@ const VisitorListAdmin = ({ pageTitle }) => {
   const isSmallScreen = useSmallScreen(BREAK_POINTS.MD);
 
   const getVisitors = async () => {
-    const startDate = new Date(dateRange[0]);
-    const endDate = new Date(dateRange[1]);
+    const startDate = getStartOfDay(dateRange[0]);
+    const endDate = getEndOfDay(dateRange[1]);
     const flatId = selectedFlatId;
     const payload = { startDate, endDate, flatId };
 
@@ -200,6 +202,8 @@ const VisitorListAdmin = ({ pageTitle }) => {
                 placeholder="Select date range"
                 format="dd/MM/yyyy"
                 block
+                cleanable={false}
+                placement="bottomEnd"
               />
               <Button appearance="primary" onClick={getVisitors}>
                 Show
@@ -223,24 +227,19 @@ const VisitorListAdmin = ({ pageTitle }) => {
               rowHeight={50}
               className="tbl-theme tbl-compact"
             >
-              <Column flexGrow={0.6} sortable>
-                <HeaderCell>Image</HeaderCell>
-                <Cell dataKey="societyImage">
-                  {(rowData) => {
-                    console.log(rowData);
-                    return (
-                      <div>
-                        {rowData.visitorImage?.fileurl && (
-                          <img
-                            src={rowData.visitorImage.fileurl}
-                            alt={rowData.visitorImage.title}
-                            className="visitor-image"
-                          />
-                        )}
-                      </div>
-                    );
-                  }}
+              <Column flexGrow={1}>
+                <HeaderCell>Date & Time</HeaderCell>
+                <Cell dataKey="createdAt">
+                  {(rowData) => formatDateTime(rowData.createdAt)}
                 </Cell>
+              </Column>
+              <Column flexGrow={0.6}>
+                <HeaderCell>Flat No</HeaderCell>
+                <Cell dataKey="flat.flatNo" />
+              </Column>
+              <Column flexGrow={0.9}>
+                <HeaderCell>Flat Contact</HeaderCell>
+                <Cell dataKey="flatContact" />
               </Column>
               <Column sortable flexGrow={1.5}>
                 <HeaderCell>Visitor Name</HeaderCell>
@@ -263,19 +262,24 @@ const VisitorListAdmin = ({ pageTitle }) => {
                 <HeaderCell>Phone</HeaderCell>
                 <Cell dataKey="visitorPhone" />
               </Column>
-              <Column flexGrow={0.6}>
-                <HeaderCell>Flat No</HeaderCell>
-                <Cell dataKey="flat.flatNo" />
-              </Column>
 
-              <Column flexGrow={1}>
-                <HeaderCell>Flat Contact</HeaderCell>
-                <Cell dataKey="flatContact" />
-              </Column>
-              <Column flexGrow={1}>
-                <HeaderCell>Date & Time</HeaderCell>
-                <Cell dataKey="createdAt">
-                  {(rowData) => formatDateTime(rowData.createdAt)}
+              <Column flexGrow={0.6} sortable>
+                <HeaderCell>Image</HeaderCell>
+                <Cell dataKey="societyImage">
+                  {(rowData) => {
+                    console.log(rowData);
+                    return (
+                      <div>
+                        {rowData.visitorImage?.fileurl && (
+                          <img
+                            src={rowData.visitorImage.fileurl}
+                            alt={rowData.visitorImage.title}
+                            className="visitor-image"
+                          />
+                        )}
+                      </div>
+                    );
+                  }}
                 </Cell>
               </Column>
             </Table>
@@ -361,20 +365,25 @@ const DetailsModal = ({ isOpen, onClose, dataObj = {} }) => {
                 <div className="val">{dataObj.description}</div>
               </div>
             </Col>
-            {dataObj.visitorImage?.fileurl && (
-              <Col xs={24}>
+            <Col xs={24}>
+              {dataObj.visitorImage?.fileurl ? (
                 <div className="details-grp">
                   <div className="lbl">Visitor Image</div>
-                  <div className="val">
+                  <div className="val visitor-image">
                     <img
                       src={dataObj.visitorImage.fileurl}
                       alt={dataObj.visitorImage.title}
-                      style={{ maxWidth: "200px", maxHeight: "200px" }}
+                      style={{ maxWidth: "10rem", maxHeight: "10rem" }}
                     />
                   </div>
                 </div>
-              </Col>
-            )}
+              ) : (
+                <div className="details-grp">
+                  <div className="lbl">Visitor Image</div>
+                  <div className="val">No image available</div>
+                </div>
+              )}
+            </Col>
           </Row>
         </Grid>
       </Modal.Body>

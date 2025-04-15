@@ -109,17 +109,23 @@ function AddBillingAdjustment({ pageTitle }) {
     setBillAdjustDetails(respdata);
   }
 
-  const getFlats = async () => {
+  async function getFlats() {
+    setPageError("");
+    let respdata = [];
     try {
       const resp = await trackPromise(
         FlatManagementService.getFlatsBySocietyId(societyId)
       );
-      setFlats(resp.data.flats);
-    } catch (error) {
-      toast.error(error.response.data.message);
-      console.error("Failed to fetch flats", error);
+      const { data } = resp;
+      if (data.success) respdata = resp.data.flats;
+    } catch (err) {
+      console.error("Flats fetch catch => ", err);
+      const errMsg = err?.response?.data?.message || `Error in fetching flats`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
-  };
+    setFlats(respdata);
+  }
 
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);

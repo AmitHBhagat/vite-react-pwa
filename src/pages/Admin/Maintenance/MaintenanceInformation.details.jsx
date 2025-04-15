@@ -12,6 +12,7 @@ import { Cell, HeaderCell } from "rsuite-table";
 import Column from "rsuite/esm/Table/TableColumn";
 import StatusIndicator from "../../../components/StatusIndicator/StatusIndicator";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
+import { capitalizeFirstLetter } from "../../../utilities/functions";
 
 const MaintenanceDetails = ({ pageTitle }) => {
   const dispatch = useDispatch();
@@ -167,7 +168,7 @@ const MaintenanceDetails = ({ pageTitle }) => {
                     }
 
                     if (typeof rowData?.value === "string") {
-                      return rowData.value;
+                      return capitalizeFirstLetter(rowData.value);
                     }
 
                     if (rowData?.value === "") {

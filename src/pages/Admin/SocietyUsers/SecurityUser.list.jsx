@@ -30,19 +30,17 @@ import ScrollToTop from "../../../utilities/ScrollToTop";
 import { useSmallScreen } from "../../../utilities/useWindowSize";
 import classNames from "classnames";
 import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
-import "../../Superadmin/AdminUsers/user.css";
 import { BREAK_POINTS } from "../../../utilities/constants";
+import Paginator, {
+  useTableData,
+  useTableState,
+} from "../../../components/Table/Paginator";
+import "../../Superadmin/AdminUsers/user.css";
 
 const SecurityUserList = ({ pageTitle }) => {
   const dispatch = useDispatch();
   const [securityUsers, setSecurityUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [limit, setLimit] = React.useState(5);
   const [topAffixed, setTopAffixed] = useState(false);
-  const [page, setPage] = React.useState(1);
-  const [sortColumn, setSortColumn] = React.useState();
-  const [sortType, setSortType] = React.useState();
-  const [loading, setLoading] = React.useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSecurity, setSelectedSecurity] = useState();
@@ -52,6 +50,19 @@ const SecurityUserList = ({ pageTitle }) => {
   const [pageError, setPageError] = useState("");
   const authState = useSelector((state) => state.authState);
   const societyId = authState?.user?.societyName;
+  const {
+    searchQuery,
+    setSearchQuery,
+    limit,
+    setLimit,
+    page,
+    setPage,
+    sortColumn,
+    sortType,
+    setSort,
+    loading,
+    setLoading,
+  } = useTableState();
 
   useEffect(() => {
     dispatch(setRouteData({ pageTitle }));
@@ -59,6 +70,7 @@ const SecurityUserList = ({ pageTitle }) => {
   }, []);
 
   const getSecurityUsers = async () => {
+    setPageError("");
     try {
       const resp = await trackPromise(adminService.getUsers());
       if (resp.data.success) {
@@ -77,6 +89,16 @@ const SecurityUserList = ({ pageTitle }) => {
       console.error("Failed to fetch users", err);
     }
   };
+  const paginatedData = useTableData({
+    data: securityUsers,
+    searchQuery,
+    sortColumn,
+    sortType,
+    page,
+    limit,
+    filterElement: "userName",
+    filterElement2: "",
+  });
 
   const getData = () => {
     let filteredUsers = securityUsers;
@@ -112,21 +134,14 @@ const SecurityUserList = ({ pageTitle }) => {
     });
     return paginatedUsers;
   };
+  const finalDataForTable = () => {
+    const finalUser = paginatedData?.limitData?.map((user) => ({
+      ...user,
+      societyName: user.societyName?.societyName || user.societyName,
+    }));
 
-  const handleSortColumn = (sortColumn, sortType) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSortColumn(sortColumn);
-      setSortType(sortType);
-    }, 500);
+    return finalUser;
   };
-
-  const handleChangeLimit = (dataKey) => {
-    setPage(1);
-    setLimit(dataKey);
-  };
-
   const handleOpenModal = (item) => {
     setSelectedSecurity(item._id);
     setDeleteMessage(`Do you wish to remove ${item.userName}?`);
@@ -210,10 +225,10 @@ const SecurityUserList = ({ pageTitle }) => {
             <Table
               autoHeight
               wordWrap="break-word"
-              data={getData()}
+              data={finalDataForTable()}
               sortColumn={sortColumn}
               sortType={sortType}
-              onSortColumn={handleSortColumn}
+              onSortColumn={setSort}
               loading={loading}
               affixHeader={50}
               headerHeight={40}
@@ -268,40 +283,19 @@ const SecurityUserList = ({ pageTitle }) => {
             </Table>
           </Col>
         </Row>
-        <div className="">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            maxButtons={5}
-            size={isSmallScreen ? "xs" : "md"}
-            layout={[
-              "total",
-              "-",
-              `${!isSmallScreen ? "limit" : ""}`,
-              `${!isSmallScreen ? "|" : ""}`,
-              "pager",
-              `${!isSmallScreen ? "|" : ""}`,
-              `${!isSmallScreen ? "skip" : ""}`,
-            ]}
-            total={securityUsers.length}
-            limitOptions={[5, 10, 30, 50]}
-            limit={limit}
-            activePage={page}
-            onChangePage={setPage}
-            onChangeLimit={handleChangeLimit}
-          />
-        </div>
+        <Paginator
+          data={securityUsers}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          setLimit={setLimit}
+        />
 
         <DetailsModal
           isOpen={modalOpen}
           onClose={handleCloseDetailsModal}
           dataObj={selectedSecurity}
         />
-
         <DeleteModal
           itemId={selectedSecurity}
           isOpen={isModalOpen}
@@ -311,7 +305,6 @@ const SecurityUserList = ({ pageTitle }) => {
           deleteErr={deleteError}
           consentRequired={deleteConsent}
         />
-
         <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </Container>

@@ -8,6 +8,7 @@ import ArowBackIcon from "@rsuite/icons/ArowBack";
 import ScrollToTop from "../../../utilities/ScrollToTop";
 import SocietyService from "../../../services/society.service";
 import { setRouteData } from "../../../stores/appSlice";
+import { PageErrorMessage } from "../../../components/Form/ErrorMessage";
 import "./society.css";
 
 function SocietyContactDetail({ pageTitle }) {
@@ -25,11 +26,12 @@ function SocietyContactDetail({ pageTitle }) {
 
   useEffect(() => {
     if (societyId) {
-      fetchSocietyDetails(societyId);
+      fetchSocietyDetails();
     }
   }, [societyId]);
 
   async function fetchSocietyDetails() {
+    setPageError("");
     try {
       const resp = await trackPromise(SocietyService.getSocietyById(societyId));
       const { data } = resp;
@@ -46,8 +48,11 @@ function SocietyContactDetail({ pageTitle }) {
         }
       }
     } catch (err) {
-      toast.error(err.response.data.message || err.message);
       console.error("Fetch society contact  details catch => ", err);
+      const errMsg =
+        err?.response?.data?.message || `Error in fetching society contact`;
+      toast.error(errMsg);
+      setPageError(errMsg);
     }
   }
 
@@ -96,7 +101,7 @@ function SocietyContactDetail({ pageTitle }) {
             </Col>
           </Row>
         </Grid>
-        {/* {pageError && <div>{pageError}</div>} */}
+        <PageErrorMessage show={Boolean(pageError)} msgText={pageError} />
       </div>
     </>
   );

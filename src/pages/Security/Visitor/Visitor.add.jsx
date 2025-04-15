@@ -182,7 +182,7 @@ function VisitorAdd({ pageTitle }) {
           })
         );
         const { data } = imgResp;
-
+        console.log("dataimage", data);
         if (data.success) {
           const image = data.visitor[0];
           payload.visitorImage = {
@@ -241,7 +241,9 @@ function VisitorAdd({ pageTitle }) {
           <Row gutter={20}>
             <Col xs={16} md={8}>
               <Form.Group controlId="flat">
-                <Form.ControlLabel>Flat No</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Flat No *
+                </Form.ControlLabel>
                 <InputPicker
                   data={flats}
                   searchable
@@ -278,7 +280,9 @@ function VisitorAdd({ pageTitle }) {
             </Col>
             <Col xs={16} md={8}>
               <Form.Group controlId="description">
-                <Form.ControlLabel>Description</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Description *
+                </Form.ControlLabel>
                 <Form.Control
                   name="description"
                   accepter={Textarea}
@@ -294,7 +298,9 @@ function VisitorAdd({ pageTitle }) {
             </Col>
             <Col xs={16} md={8}>
               <Form.Group controlId="visitorName">
-                <Form.ControlLabel>Visitor Name</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Visitor Name *
+                </Form.ControlLabel>
                 <Form.Control
                   name="visitorName"
                   placeholder="Enter Visitor Name"
@@ -309,7 +315,9 @@ function VisitorAdd({ pageTitle }) {
             </Col>
             <Col xs={16} md={8}>
               <Form.Group controlId="visitorPhone">
-                <Form.ControlLabel>Visitor Phone</Form.ControlLabel>
+                <Form.ControlLabel className="mandatory-field">
+                  Visitor Phone *
+                </Form.ControlLabel>
                 <Form.Control
                   name="visitorPhone"
                   placeholder="Enter Visitor Phone"

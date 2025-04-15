@@ -30,7 +30,7 @@ function ExpenseDetails({ pageTitle }) {
     }
   }, [expId]);
 
-  const getExpenseDetails = async (societyid) => {
+  const getExpenseDetails = async (expId) => {
     setPageError("");
     let respdata = [];
     try {

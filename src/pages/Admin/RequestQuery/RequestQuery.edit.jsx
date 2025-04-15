@@ -108,7 +108,6 @@ function EditRequestQuery({ pageTitle }) {
     }
     setQueryDetails(respdata);
   }
-  console.log("queryDetails", queryDetails);
 
   const handleFieldChange = (key) => (value) => {
     frmObj.setFieldValue(key, value);
